@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>303 · Puerta</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:#12101a;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe UI',sans-serif}
+#app{min-height:100vh;display:flex;flex-direction:column}
+
+.centrado{display:flex;align-items:center;justify-content:center;min-height:100vh;color:#8a80a0;font-size:14px}
+
+/* ============ LOGIN ============ */
+.login{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.login-t{font-size:15px;font-weight:700;color:#fff;margin-bottom:20px}
+.login form{display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px}
+.login input{background:#1a1826;border:1px solid #2a2838;border-radius:12px;padding:13px 14px;color:#fff;font-size:14px}
+.login button{background:linear-gradient(120deg,#ff6ec7,#a86cff);border:none;border-radius:12px;padding:13px;color:#fff;font-weight:700;font-size:14px}
+.login-err{color:#e28a8a;font-size:12px;text-align:center;min-height:16px}
+
+/* ============ ABRIR TURNO ============ */
+.abrir{display:flex;flex-direction:column;padding:32px 24px;max-width:360px;margin:0 auto;width:100%}
+.abrir-t{font-size:18px;font-weight:800;color:#fff;margin-bottom:20px}
+.abrir form{display:flex;flex-direction:column;gap:14px}
+.abrir label{display:flex;flex-direction:column;gap:6px;font-size:11px;color:#8a80a0;text-transform:uppercase;letter-spacing:0.04em;font-weight:700}
+.abrir input,.abrir select{background:#1a1826;border:1px solid #2a2838;border-radius:12px;padding:12px 13px;color:#fff;font-size:14px;font-family:inherit}
+.abrir button{margin-top:8px;background:linear-gradient(120deg,#ff6ec7,#a86cff);border:none;border-radius:14px;padding:14px;color:#fff;font-weight:800;font-size:14px}
+.abrir-sub{font-size:12px;color:#8a80a0;margin:-12px 0 8px}
+.noches{display:flex;flex-direction:column;gap:10px}
+.noche{background:#1a1826;border:1px solid #2a2838;border-radius:14px;padding:15px 16px;text-align:left;cursor:pointer}
+.noche-fecha{font-size:15px;font-weight:800;color:#fff}
+.noche-prod{font-size:12px;color:#b8a0f0;margin-top:3px}
+.link-crear{background:none !important;border:none !important;color:#8a80a0 !important;font-weight:600 !important;font-size:12px !important;padding:8px !important;text-decoration:underline;cursor:pointer}
+
+/* ============ BOTONERA (adaptado de los mockups de diseño) ============ */
+.m2{width:100%;max-width:420px;margin:0 auto;background:#12101a;padding:16px;position:relative;overflow:hidden;flex:1}
+.glow{position:absolute;width:200px;height:200px;border-radius:50%;filter:blur(80px);opacity:0.26;pointer-events:none}
+/* Absoluto: cuando aparece (solo si el sync se atrasa de verdad) se superpone
+   en la esquina y no empuja el layout — nunca causa "salto". */
+.sync-badge{position:absolute;top:12px;right:14px;z-index:3;font-size:10px;color:#e5c98c;background:#2a2416;border:1px solid #4a3f24;border-radius:20px;padding:5px 11px}
+.b-hdr{position:relative;z-index:1;margin-bottom:13px}
+.b-place{font-size:14px;font-weight:800;color:#fff}
+.b-editrow{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;align-items:center}
+.b-chip{font-size:9.5px;color:#e0d0ff;background:#ffffff10;border:1px solid #ffffff18;border-radius:20px;padding:5px 10px;cursor:pointer}
+.b-chip.back{color:#e6a3b0;background:#ff6a8814;border-color:#ff6a8840}
+.b-chip-edit{font-size:11px;border-radius:8px;border:1px solid #a86cff;background:#1a1826;color:#fff;padding:4px 6px}
+.b-total{position:relative;z-index:1;text-align:center;margin-bottom:12px}
+.b-total-v{font-size:34px;font-weight:800;background:linear-gradient(120deg,#ff6ec7,#a86cff,#6ec3ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.b-total-l{font-size:9px;color:#8a80a0;letter-spacing:0.08em;text-transform:uppercase;margin-top:2px}
+.b-grid2{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bbtn{border-radius:16px;padding:14px 12px;border:none;overflow:hidden;text-align:left}
+.bbtn .l{font-size:10px;font-weight:700;display:block;opacity:0.95;color:#fff}
+.bbtn .c{font-size:24px;font-weight:800;margin-top:3px;color:#fff;line-height:1}
+/* Los dos free: mismo hue (azul de marca), distinto tono para diferenciarlos. */
+.free23{background:linear-gradient(135deg,#5cc8ff,#3a86d8)}
+.freelista{background:linear-gradient(135deg,#3f6db0,#2b4f8a)}
+.freelista .hint{font-size:8px;font-weight:600;opacity:.85;letter-spacing:.02em}
+.tk-row{position:relative;z-index:1;display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+/* Ticket = botón "de plata": gradiente de marca rosa→violeta, más ancho que un free. */
+.tkbtn{flex:1 1 100px;background:linear-gradient(135deg,#ff6ec7,#a86cff);border-radius:16px;padding:14px 13px;border:none;color:#fff;display:flex;justify-content:space-between;align-items:center;text-align:left}
+.tkbtn .l{font-size:11px;font-weight:700}
+.tkbtn .val{font-size:9px;opacity:0.85;margin-top:2px}
+.tkbtn .c{font-size:24px;font-weight:800}
+.ra{width:70px;border-radius:16px;border:1.5px dashed #a86cff;background:#a86cff10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#b8a0f0}
+.ra.activa{background:#a86cff;border-style:solid;color:#fff}
+.ra .box{width:18px;height:18px;border-radius:5px;border:1.5px solid #a86cff;display:flex;align-items:center;justify-content:center;font-size:11px;color:#a86cff}
+.ra.activa .box{border-color:#fff;color:#fff}
+.ra .t{font-size:9px;font-weight:700}
+.ra .s{font-size:7px;opacity:0.7;text-align:center}
+.lz{position:relative;z-index:1;background:#ffffff08;border:1px solid #ffffff14;border-radius:16px;padding:10px;margin:9px 0}
+.lz-s{width:100%;background:#ffffff0d;border:1px solid #ffffff1a;border-radius:11px;padding:9px 10px;color:#fff;font-size:12px;font-family:inherit}
+.lz-s::placeholder{color:#8a80a0}
+.lz-res{margin-top:6px;display:flex;flex-direction:column;gap:4px}
+.lzr{display:flex;justify-content:space-between;align-items:center;padding:7px 9px;border-radius:8px;cursor:pointer}
+.lzr.av{background:#2dd47f18}
+.lzr.av .nm{color:#c8f0d8;font-size:11px}
+.lzr.av .tg{font-size:8px;color:#5dda9a}
+.lzr.us{background:#ffffff06;cursor:default}
+.lzr.us .nm{color:#8a80a0;font-size:11px;text-decoration:line-through}
+.lzr.us .tg{font-size:8px;color:#d48a9a}
+.lz-meta{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#8a80a0;margin-top:7px;padding:0 2px}
+.lz-meta b{color:#3ad9a0}
+.lz-refresh{background:none;border:none;color:#8a80a0;font-size:12px;cursor:pointer;padding:0 4px}
+.tk-add{background:none;border:1px dashed #3a3550;border-radius:12px;color:#8a80a0;font-size:11px;padding:8px;width:100%;margin-top:6px}
+.tk-addrow{display:flex;gap:6px;margin-top:6px}
+.tk-addrow input{flex:1;background:#1a1826;border:1px solid #2a2838;border-radius:10px;padding:9px;color:#fff;font-size:13px}
+.tk-addrow button{background:linear-gradient(135deg,#4d9fff,#3d6ce0);border:none;border-radius:10px;padding:9px 13px;color:#fff;font-weight:700;font-size:12px}
+/* FREE 303 = rojo característico (pasar sin lista, atribuido a un organizador). */
+.f303{position:relative;z-index:1;background:linear-gradient(135deg,#ff5d73,#e23d5a);border-radius:16px;padding:14px 12px;border:none;color:#fff;display:flex;justify-content:space-between;align-items:center;text-align:left}
+.f303 .l{font-size:11px;font-weight:800}
+.f303 .s{font-size:8px;opacity:.85;margin-top:2px}
+.f303-ic{font-size:22px;font-weight:800;opacity:.9;line-height:1}
+.modal-bg{position:fixed;inset:0;background:#000000a0;z-index:20;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-card{background:#1a1826;border:1px solid #2a2838;border-radius:16px;padding:18px;width:100%;max-width:320px}
+.modal-t{font-size:14px;font-weight:800;color:#fff;margin-bottom:14px}
+.mrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px}
+.mlbl{font-size:11px;color:#8a80a0;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.step{display:flex;align-items:center;gap:12px}
+.step button{width:34px;height:34px;border-radius:10px;border:1px solid #3a3550;background:#241f38;color:#fff;font-size:18px;font-weight:800}
+.step .n{font-size:20px;font-weight:800;color:#fff;min-width:22px;text-align:center}
+.modal-card select{background:#241f38;border:1px solid #3a3550;border-radius:10px;padding:9px 12px;color:#fff;font-size:13px;min-width:120px}
+.modal-conf{width:100%;margin-top:4px;background:linear-gradient(135deg,#a86cff,#7d5bff);border:none;border-radius:13px;padding:13px;color:#fff;font-weight:800;font-size:14px}
+.modal-cancel{width:100%;margin-top:8px;background:none;border:none;color:#8a80a0;font-size:12px;padding:6px}
+/* Guardarropa = secundario: botón neutral (no compite con ticket/free). */
+.guar{position:relative;z-index:1;background:#ffffff10;border:1px solid #ffffff20;border-radius:16px;padding:14px 12px;color:#e8e6f0;display:flex;justify-content:space-between;align-items:center;text-align:left}
+.guar .l{font-size:11px;font-weight:800}
+.guar .s{font-size:8px;opacity:0.7;margin-top:2px}
+.guar .c{font-size:19px;font-weight:800}
+.compo{position:relative;z-index:1;margin-top:12px}
+.compo-l{font-size:8px;color:#6a6478;letter-spacing:0.06em;font-weight:700;margin-bottom:5px}
+.compo-bar{height:8px;border-radius:4px;overflow:hidden;display:flex;background:#1e1d28}
+.compo-bar span{height:100%}
+.compo-leg{display:flex;gap:9px;margin-top:5px;flex-wrap:wrap}
+.cl{display:flex;align-items:center;gap:3px;font-size:8px;color:#8a80a0}
+.cl .d{width:5px;height:5px;border-radius:2px}
+.b-foot{position:relative;z-index:1;display:flex;gap:6px;margin-top:14px}
+.bf{text-align:center;font-size:11.5px;font-weight:600;padding:14px 6px;border-radius:12px;border:none;font-family:inherit}
+.bf.gh{background:#ffffff0d;border:1px solid #ffffff1a;color:#c0b8d0;flex:1}
+.bf.gh:disabled{opacity:0.4}
+.bf.rs{background:#ffffff0d;border:1px solid #ffffff1a;color:#d4a0a0;flex:1}
+.bf.sl{background:linear-gradient(120deg,#ff6ec7,#a86cff);color:#fff;flex:1.6}
+
+/* ============ CIERRE ============ */
+.cl-sum{width:100%;max-width:420px;margin:0 auto;background:#12101a;padding:20px 18px;position:relative;overflow:hidden;flex:1}
+.sum-hdr{text-align:center;margin-bottom:16px}
+.sum-check{width:44px;height:44px;border-radius:50%;background:#2dd47f1a;border:1px solid #2dd47f50;display:flex;align-items:center;justify-content:center;font-size:20px;color:#2dd47f;margin:0 auto 10px}
+.sum-t{font-size:16px;font-weight:800;color:#fff}
+.sum-meta{font-size:10px;color:#8a80a0;margin-top:4px;text-transform:uppercase;letter-spacing:0.03em}
+.caja{background:linear-gradient(135deg,#1a2a1e,#14201a);border:1px solid #2dd47f40;border-radius:16px;padding:16px;margin-bottom:10px}
+.caja-l{font-size:10px;color:#5dda9a;letter-spacing:0.05em;text-transform:uppercase;font-weight:700}
+.caja-v{font-size:32px;font-weight:800;color:#fff;margin:6px 0 0;line-height:1}
+.caja-break{margin-top:12px;padding-top:10px;border-top:1px solid #ffffff12;display:flex;flex-direction:column;gap:6px}
+.cbk{display:flex;justify-content:space-between;font-size:11px}
+.cbk .k{color:#9aa89e}
+.cbk .v{color:#e0e6e2;font-weight:600}
+.ra-card{background:#ffffff08;border:1px solid #ffffff14;border-radius:13px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.ra-cl{font-size:10px;color:#b8a0f0;letter-spacing:0.03em;text-transform:uppercase;font-weight:700}
+.ra-cs{font-size:9px;color:#8a80a0;margin-top:2px}
+.ra-cv{font-size:20px;font-weight:800;color:#c9b8ec}
+.tot-c{background:#ffffff06;border:1px dashed #ffffff20;border-radius:13px;padding:12px 14px;margin-bottom:16px}
+.tot-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.tot-l{font-size:10px;color:#8a80a0;letter-spacing:0.03em;text-transform:uppercase;font-weight:700}
+.tot-badge{font-size:8px;color:#6a6478;background:#ffffff0d;padding:2px 8px;border-radius:8px}
+.tot-grid{display:flex;gap:10px}
+.tot-i{flex:1}
+.tot-i .n{font-size:22px;font-weight:800;color:#fff}
+.tot-i .k{font-size:9px;color:#8a80a0;margin-top:1px}
+.fin-btn{width:100%;background:linear-gradient(120deg,#ff6ec7,#a86cff);border:none;border-radius:14px;padding:15px;font-size:14px;font-weight:800;color:#fff;font-family:inherit}
+
+/* ============ ARQUEO DE CAJA / VARIANZA ============ */
+.arq-esp{display:flex;justify-content:space-between;align-items:center;background:#1a1826;border:1px solid #2a2838;border-radius:12px;padding:12px 14px;font-size:12px;color:#8a80a0}
+.arq-esp b{font-size:20px;color:#fff}
+.arq-var{font-size:13px;font-weight:800;text-align:center;padding:11px;border-radius:12px;background:#ffffff08;border:1px solid #ffffff14;color:#8a80a0}
+.arq-var.ok{color:#2dd47f;background:#2dd47f14;border-color:#2dd47f40}
+.arq-var.neg{color:#ff6a88;background:#ff6a8814;border-color:#ff6a8840}
+.varc{display:flex;justify-content:space-between;align-items:center;border-radius:13px;padding:12px 14px;margin-bottom:10px}
+.varc.ok{background:#2dd47f14;border:1px solid #2dd47f40}
+.varc.neg{background:#ff6a8814;border:1px solid #ff6a8840}
+.varc-l{font-size:10px;letter-spacing:.03em;text-transform:uppercase;font-weight:700}
+.varc.ok .varc-l{color:#5dda9a}
+.varc.neg .varc-l{color:#ff9aae}
+.varc-s{font-size:9px;color:#8a80a0;margin-top:2px}
+.varc-v{font-size:22px;font-weight:800}
+.varc.ok .varc-v{color:#2dd47f}
+.varc.neg .varc-v{color:#ff6a88}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

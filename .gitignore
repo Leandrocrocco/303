@@ -1,0 +1,9 @@
+# Documentación de trabajo y utilidades internas (no forman parte del producto público)
+_private/
+
+# Config local del entorno de desarrollo (no hace falta en producción)
+.claude/
+
+# Cruft del sistema operativo
+.DS_Store
+Thumbs.db

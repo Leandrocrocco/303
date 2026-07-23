@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>303 · Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0c12;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe UI',sans-serif;font-size:15px;line-height:1.5}
+
+/* LOGIN */
+.login{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.login-t{font-size:16px;font-weight:700;color:#fff;margin-bottom:20px}
+.login form{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
+.login input{background:#16161f;border:1px solid #26262f;border-radius:12px;padding:13px 14px;color:#fff;font-size:14px}
+.login button{background:linear-gradient(120deg,#a86cff,#6ec3ff);border:none;border-radius:12px;padding:13px;color:#fff;font-weight:700;font-size:14px;cursor:pointer}
+.err{color:#e28a8a;font-size:12px;text-align:center;min-height:16px}
+.vacio{display:flex;align-items:center;justify-content:center;min-height:100vh;color:#8a8a98;padding:24px;text-align:center}
+.no-admin-msg{color:#8a8a98;font-size:13px;text-align:center;max-width:290px;margin-bottom:16px;line-height:1.5}
+.login button{max-width:300px;width:100%}
+
+/* HEADER */
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #1e1e28;position:sticky;top:0;background:#0c0c12;z-index:5}
+.brand{font-size:17px;font-weight:700;color:#fff;letter-spacing:0.02em}
+.brand span{color:#a86cff}
+.top-right{display:flex;gap:10px;align-items:center}
+.sel-cliente{background:#16161f;border:1px solid #26262f;border-radius:10px;padding:9px 12px;color:#fff;font-size:13px;font-family:inherit}
+.btn-logout{background:#16161f;border:1px solid #26262f;border-radius:10px;padding:9px 14px;color:#c0b8d0;font-size:13px;cursor:pointer;font-family:inherit}
+
+/* LAYOUT */
+.wrap{max-width:920px;margin:0 auto;padding:28px 24px 80px;display:flex;flex-direction:column;gap:16px}
+.card{background:#12121a;border:1px solid #1e1e28;border-radius:16px;padding:22px 24px}
+.card h2{font-size:18px;font-weight:700;color:#fff;margin-bottom:4px}
+.hint{font-size:12.5px;color:#6b6b78;margin-bottom:16px}
+
+/* Turnos es la sección principal: más aire, primera en la página */
+.card.principal{padding:24px 26px}
+.card.principal h2{font-size:20px}
+
+/* Agenda / Productoras / Organizadores: colapsables y compactas por defecto */
+details.card{padding:0}
+details.card summary{list-style:none;cursor:pointer;padding:16px 22px;display:flex;align-items:center;gap:10px}
+details.card summary::-webkit-details-marker{display:none}
+details.card summary .chev{color:#6b6b78;font-size:11px;transition:transform .15s;margin-left:auto}
+details.card[open] summary .chev{transform:rotate(90deg)}
+details.card summary h2{margin:0;font-size:15px}
+details.card summary .count{font-size:11px;color:#8a8a98;background:#1a1a24;border:1px solid #22222c;border-radius:20px;padding:2px 9px}
+details.card .card-body{padding:0 22px 20px}
+
+/* ROWS (productoras / organizadores / agenda) */
+.rows{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;max-height:230px;overflow-y:auto;padding-right:2px}
+.row{display:flex;align-items:center;gap:12px;background:#16161f;border:1px solid #22222c;border-radius:11px;padding:11px 14px}
+.row.inactivo{opacity:0.5}
+.row-nombre{font-size:14px;color:#fff;font-weight:600;white-space:nowrap}
+.row-meta{font-size:11px;color:#6b6b78;margin-left:auto;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.row-toggle{flex-shrink:0;background:#1e1e28;border:1px solid #2a2a36;border-radius:9px;padding:7px 12px;color:#c0b8d0;font-size:11.5px;cursor:pointer;font-family:inherit}
+.row-toggle:hover{background:#26262f}
+.row-vacia{font-size:13px;color:#6b6b78;padding:10px 2px}
+
+/* ALTA FORMS — wrap en vez de desbordar/superponerse en pantallas angostas */
+.alta{display:flex;flex-wrap:wrap;gap:8px}
+.alta input,.alta select{flex:1 1 140px;min-width:0;background:#16161f;border:1px solid #26262f;border-radius:10px;padding:10px 13px;color:#fff;font-size:13px;font-family:inherit}
+.alta-org input[name=pin]{flex:0 1 80px}
+.alta-agenda input[type=date]{flex:0 1 150px}
+.alta button{flex:0 0 auto;background:linear-gradient(120deg,#a86cff,#6ec3ff);border:none;border-radius:10px;padding:10px 18px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
+
+.pct-form{display:flex;align-items:center;gap:5px;flex-shrink:0}
+/* En pantallas angostas la fila de productora tiene demasiado (nombre + % puerta
+   + % barra + baja): se envuelve, y los campos de % bajan a su propia línea en
+   vez de desbordar/desfasarse el recuadro. */
+@media(max-width:600px){
+  .row{flex-wrap:wrap}
+  .pct-form{flex:1 1 100%;flex-wrap:wrap;margin-top:6px;order:3}
+  .row-toggle{order:2}
+}
+.pct-form input{width:48px;background:#16161f;border:1px solid #26262f;border-radius:8px;padding:6px 7px;color:#fff;font-size:12px;font-family:inherit}
+.pct-suffix{font-size:10.5px;color:#6b6b78;white-space:nowrap}
+.pct-form button{flex-shrink:0;background:#1e1e28;border:1px solid #2a2a36;border-radius:8px;padding:6px 10px;color:#c0b8d0;font-size:11px;cursor:pointer;font-family:inherit}
+.pct-form button:hover{background:#26262f}
+
+.barra-form{display:flex;align-items:center;gap:4px}
+.barra-form input{width:64px;background:#16161f;border:1px solid #26262f;border-radius:7px;padding:5px 6px;color:#fff;font-size:12px;font-family:inherit}
+.barra-form button{flex-shrink:0;background:#1e1e28;border:1px solid #2a2a36;border-radius:7px;padding:5px 8px;font-size:12px;cursor:pointer}
+
+/* TABLA TURNOS */
+.tabla-scroll{overflow-x:auto}
+table.turnos{width:100%;border-collapse:collapse;font-size:13px}
+table.turnos th{text-align:left;font-size:10px;letter-spacing:0.04em;text-transform:uppercase;color:#6b6b78;font-weight:700;padding:8px 10px;border-bottom:1px solid #22222c;white-space:nowrap}
+table.turnos td{padding:11px 10px;border-bottom:1px solid #1a1a22;color:#c8c8d4;white-space:nowrap}
+table.turnos .num{text-align:right}
+table.turnos .sub{color:#8a8a98;font-size:12px}
+table.turnos th.sub{color:#4d4d58}
+tr.abierto td{background:#1a1826}
+.cerrado{font-size:10px;color:#5dda9a;background:#1a2a1e;border:1px solid #2dd47f30;padding:2px 8px;border-radius:8px}
+.en-curso{font-size:10px;color:#e5c98c;background:#2a2416;border:1px solid #4a3f24;padding:2px 8px;border-radius:8px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>
