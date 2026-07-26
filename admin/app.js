@@ -25,6 +25,7 @@ const vista = {
   turnos: [],
   turnoMes: null,     // 'YYYY-MM' | 'all' | null (null = default al mes más reciente)
   turnoProd: 'all',   // nombre de productora | 'all'
+  turnosAbierto: false, // si el desplegable de Turnos está abierto (se preserva al re-render)
 };
 
 async function iniciar() {
@@ -104,7 +105,7 @@ function render() {
     <header class="top">
       <div style="display:flex;align-items:center;gap:12px">
         <a href="../" style="display:inline-flex;align-items:center;gap:5px;color:#c0b8d0;text-decoration:none;background:#16161f;border:1px solid #26262f;border-radius:9px;padding:7px 11px;font-size:12px">← Menú</a>
-        <div class="brand">303 · <span>admin</span></div>
+        <div class="brand">303 · <span>Admin</span></div>
       </div>
       <div class="top-right">
         <span style="font-size:10px;color:#6a6478;font-family:ui-monospace,Consolas,monospace">${APP_VERSION}</span>
@@ -275,7 +276,7 @@ function seccionTurnos() {
   // Las noches 'programado' viven en la Agenda; acá solo el histórico operado.
   const historicos = vista.turnos.filter((t) => t.estado !== 'programado');
   if (historicos.length === 0) {
-    return `<details class="card"><summary><h2>Turnos</h2><span class="count">0</span><span class="chev">▶</span></summary>
+    return `<details class="card" id="card-turnos" ${vista.turnosAbierto ? 'open' : ''}><summary><h2>Turnos</h2><span class="count">0</span><span class="chev">▶</span></summary>
       <div class="card-body"><div class="row-vacia">Sin turnos operados para este cliente.</div></div></details>`;
   }
 
@@ -298,7 +299,7 @@ function seccionTurnos() {
     : '<tr><td colspan="12" class="row-vacia">Sin turnos para este filtro.</td></tr>';
 
   return `
-    <details class="card">
+    <details class="card" id="card-turnos" ${vista.turnosAbierto ? 'open' : ''}>
       <summary><h2>Turnos</h2><span class="count">${historicos.length}</span><span class="chev">▶</span></summary>
       <div class="card-body">
         <p class="hint">Personas desglosadas en free / cash / RA. Ticket medio = (caja + RA) ÷ personas. Barra es carga manual (placeholder hasta tener un import real de Revolut) — el dashboard ya la usa para Bar y "net to venue".</p>
@@ -326,6 +327,10 @@ function cablear() {
     vista.idCliente = e.target.value;
     await cargarDatosCliente();
   });
+  // Registra si el desplegable de Turnos está abierto, para preservarlo al re-render
+  // (si no, filtrar por mes/productora lo cerraría porque render() rehace el DOM).
+  const cardTurnos = document.getElementById('card-turnos');
+  cardTurnos?.addEventListener('toggle', () => { vista.turnosAbierto = cardTurnos.open; });
   document.getElementById('turno-filtro-mes')?.addEventListener('change', (e) => {
     vista.turnoMes = e.target.value;
     render();

@@ -13,7 +13,7 @@ body{background:#0c0c12;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe
 .login-t{font-size:16px;font-weight:700;color:#fff;margin-bottom:20px}
 .login form{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
 .login input{background:#16161f;border:1px solid #26262f;border-radius:12px;padding:13px 14px;color:#fff;font-size:14px}
-.login button{background:linear-gradient(120deg,#a86cff,#6ec3ff);border:none;border-radius:12px;padding:13px;color:#fff;font-weight:700;font-size:14px;cursor:pointer}
+.login button{background:linear-gradient(120deg,#ff4d4d,#c81e1e);border:none;border-radius:12px;padding:13px;color:#fff;font-weight:700;font-size:14px;cursor:pointer}
 .err{color:#e28a8a;font-size:12px;text-align:center;min-height:16px}
 .vacio{display:flex;align-items:center;justify-content:center;min-height:100vh;color:#8a8a98;padding:24px;text-align:center}
 .no-admin-msg{color:#8a8a98;font-size:13px;text-align:center;max-width:290px;margin-bottom:16px;line-height:1.5}
@@ -22,7 +22,7 @@ body{background:#0c0c12;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe
 /* HEADER */
 .top{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #1e1e28;position:sticky;top:0;background:#0c0c12;z-index:5}
 .brand{font-size:17px;font-weight:700;color:#fff;letter-spacing:0.02em}
-.brand span{color:#a86cff}
+.brand span{color:#ff3b3b}
 .top-right{display:flex;gap:10px;align-items:center}
 .sel-cliente{background:#16161f;border:1px solid #26262f;border-radius:10px;padding:9px 12px;color:#fff;font-size:13px;font-family:inherit}
 .btn-logout{background:#16161f;border:1px solid #26262f;border-radius:10px;padding:9px 14px;color:#c0b8d0;font-size:13px;cursor:pointer;font-family:inherit}
@@ -62,7 +62,7 @@ details.card .card-body{padding:0 22px 20px}
 .alta input,.alta select{flex:1 1 140px;min-width:0;background:#16161f;border:1px solid #26262f;border-radius:10px;padding:10px 13px;color:#fff;font-size:13px;font-family:inherit}
 .alta-org input[name=pin]{flex:0 1 80px}
 .alta-agenda input[type=date]{flex:0 1 150px}
-.alta button{flex:0 0 auto;background:linear-gradient(120deg,#a86cff,#6ec3ff);border:none;border-radius:10px;padding:10px 18px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
+.alta button{flex:0 0 auto;background:linear-gradient(120deg,#ff4d4d,#c81e1e);border:none;border-radius:10px;padding:10px 18px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
 
 .pct-form{display:flex;align-items:center;gap:5px;flex-shrink:0}
 /* En pantallas angostas la fila de productora tiene demasiado (nombre + % puerta
@@ -79,14 +79,15 @@ details.card .card-body{padding:0 22px 20px}
 .pct-form button:hover{background:#26262f}
 
 .barra-form{display:flex;align-items:center;gap:4px}
-.barra-form input{width:64px;background:#16161f;border:1px solid #26262f;border-radius:7px;padding:5px 6px;color:#fff;font-size:12px;font-family:inherit}
+.barra-form input{width:58px;background:#16161f;border:1px solid #26262f;border-radius:7px;padding:5px 6px;color:#fff;font-size:12px;font-family:inherit;-moz-appearance:textfield;appearance:textfield}
+.barra-form input::-webkit-outer-spin-button,.barra-form input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .barra-form button{flex-shrink:0;background:#1e1e28;border:1px solid #2a2a36;border-radius:7px;padding:5px 8px;font-size:12px;cursor:pointer}
 
 /* TABLA TURNOS */
 .tabla-scroll{overflow-x:auto}
-table.turnos{width:100%;border-collapse:collapse;font-size:13px}
-table.turnos th{text-align:left;font-size:10px;letter-spacing:0.04em;text-transform:uppercase;color:#6b6b78;font-weight:700;padding:8px 10px;border-bottom:1px solid #22222c;white-space:nowrap}
-table.turnos td{padding:11px 10px;border-bottom:1px solid #1a1a22;color:#c8c8d4;white-space:nowrap}
+table.turnos{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto}
+table.turnos th{text-align:left;font-size:9.5px;letter-spacing:0.02em;text-transform:uppercase;color:#6b6b78;font-weight:700;padding:7px 6px;border-bottom:1px solid #22222c;white-space:nowrap}
+table.turnos td{padding:9px 6px;border-bottom:1px solid #1a1a22;color:#c8c8d4;white-space:nowrap}
 table.turnos .num{text-align:right}
 table.turnos .sub{color:#8a8a98;font-size:12px}
 table.turnos th.sub{color:#4d4d58}
