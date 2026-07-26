@@ -25,7 +25,6 @@ const vista = {
   turnos: [],
   turnoMes: null,     // 'YYYY-MM' | 'all' | null (null = default al mes más reciente)
   turnoProd: 'all',   // nombre de productora | 'all'
-  turnosAbierto: false, // si el desplegable de Turnos está abierto (se preserva al re-render)
 };
 
 async function iniciar() {
@@ -276,7 +275,7 @@ function seccionTurnos() {
   // Las noches 'programado' viven en la Agenda; acá solo el histórico operado.
   const historicos = vista.turnos.filter((t) => t.estado !== 'programado');
   if (historicos.length === 0) {
-    return `<details class="card" id="card-turnos" ${vista.turnosAbierto ? 'open' : ''}><summary><h2>Turnos</h2><span class="count">0</span><span class="chev">▶</span></summary>
+    return `<details class="card" id="card-turnos"><summary><h2>Turnos</h2><span class="count">0</span><span class="chev">▶</span></summary>
       <div class="card-body"><div class="row-vacia">Sin turnos operados para este cliente.</div></div></details>`;
   }
 
@@ -299,7 +298,7 @@ function seccionTurnos() {
     : '<tr><td colspan="12" class="row-vacia">Sin turnos para este filtro.</td></tr>';
 
   return `
-    <details class="card" id="card-turnos" ${vista.turnosAbierto ? 'open' : ''}>
+    <details class="card" id="card-turnos">
       <summary><h2>Turnos</h2><span class="count">${historicos.length}</span><span class="chev">▶</span></summary>
       <div class="card-body">
         <p class="hint">Personas desglosadas en free / cash / RA. Ticket medio = (caja + RA) ÷ personas. Barra es carga manual (placeholder hasta tener un import real de Revolut) — el dashboard ya la usa para Bar y "net to venue".</p>
@@ -307,7 +306,7 @@ function seccionTurnos() {
           <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#8a8a98">Mes <select id="turno-filtro-mes" class="sel-cliente">${opcMeses}</select></label>
           <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#8a8a98">Productora <select id="turno-filtro-prod" class="sel-cliente">${opcProds}</select></label>
         </div>
-        <div style="font-size:12px;color:#b8b4c8;margin-bottom:10px;font-weight:600">${resumenTurnos(filtrados)}</div>
+        <div id="turnos-resumen" style="font-size:12px;color:#b8b4c8;margin-bottom:10px;font-weight:600">${resumenTurnos(filtrados)}</div>
         <div class="tabla-scroll">
           <table class="turnos">
             <thead><tr>
@@ -315,7 +314,7 @@ function seccionTurnos() {
               <th class="num">Pers.</th><th class="num sub">Free</th><th class="num sub">Cash</th><th class="num sub">RA</th>
               <th class="num">Caja</th><th class="num">RA €</th><th class="num">Ticket med.</th><th>Barra</th><th>Estado</th>
             </tr></thead>
-            <tbody>${filas}</tbody>
+            <tbody id="turnos-tbody">${filas}</tbody>
           </table>
         </div>
       </div>
@@ -327,17 +326,15 @@ function cablear() {
     vista.idCliente = e.target.value;
     await cargarDatosCliente();
   });
-  // Registra si el desplegable de Turnos está abierto, para preservarlo al re-render
-  // (si no, filtrar por mes/productora lo cerraría porque render() rehace el DOM).
-  const cardTurnos = document.getElementById('card-turnos');
-  cardTurnos?.addEventListener('toggle', () => { vista.turnosAbierto = cardTurnos.open; });
+  // Los filtros actualizan SOLO la tabla + el resumen (no re-renderizan la página),
+  // así el desplegable de Turnos no se cierra al filtrar por mes/productora.
   document.getElementById('turno-filtro-mes')?.addEventListener('change', (e) => {
     vista.turnoMes = e.target.value;
-    render();
+    actualizarTablaTurnos();
   });
   document.getElementById('turno-filtro-prod')?.addEventListener('change', (e) => {
     vista.turnoProd = e.target.value;
-    render();
+    actualizarTablaTurnos();
   });
   document.getElementById('btn-logout').addEventListener('click', async () => {
     await supabase.auth.signOut();
@@ -413,6 +410,13 @@ function cablear() {
     });
   });
 
+  cablearBarraForms();
+}
+
+// Engancha los formularios de barra. Se llama en cada render y también tras
+// actualizar la tabla al filtrar (porque ahí se reescribe el tbody y se pierden
+// los listeners de las filas nuevas).
+function cablearBarraForms() {
   app.querySelectorAll('form.barra-form').forEach((form) => {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -425,6 +429,22 @@ function cablear() {
       }
     });
   });
+}
+
+// Actualiza solo el resumen + el cuerpo de la tabla de turnos según los filtros,
+// sin re-renderizar la página (así el desplegable de Turnos no se cierra).
+function actualizarTablaTurnos() {
+  const historicos = vista.turnos.filter((t) => t.estado !== 'programado');
+  const filtrados = turnosFiltrados(historicos);
+  const resumenEl = document.getElementById('turnos-resumen');
+  const tbodyEl = document.getElementById('turnos-tbody');
+  if (resumenEl) resumenEl.innerHTML = resumenTurnos(filtrados);
+  if (tbodyEl) {
+    tbodyEl.innerHTML = filtrados.length
+      ? filtrados.map(filaTurno).join('')
+      : '<tr><td colspan="12" class="row-vacia">Sin turnos para este filtro.</td></tr>';
+  }
+  cablearBarraForms();
 }
 
 iniciar();
