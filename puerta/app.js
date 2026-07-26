@@ -313,9 +313,9 @@ function parchearConteo() {
   const leg = app.querySelector('#compo-leg');
   if (leg) {
     const items = leg.querySelectorAll('.cl');
-    if (items[0]) items[0].innerHTML = `<span class="d" style="background:#5cc8ff"></span>Free 23h ${pct(c.free_23h)}%`;
-    if (items[1]) items[1].innerHTML = `<span class="d" style="background:#3f6db0"></span>Lista ${pct(c.free_lista)}%`;
-    if (items[2]) items[2].innerHTML = `<span class="d" style="background:#ff6ec7"></span>Ticket ${pct(c.ticket)}%`;
+    if (items[0]) items[0].innerHTML = `<span class="d" style="background:#ff6b6b"></span>Free 23h ${pct(c.free_23h)}%`;
+    if (items[1]) items[1].innerHTML = `<span class="d" style="background:#b3312e"></span>Lista ${pct(c.free_lista)}%`;
+    if (items[2]) items[2].innerHTML = `<span class="d" style="background:#ff5a5a"></span>Ticket ${pct(c.ticket)}%`;
   }
 
   const undo = app.querySelector('[data-action=deshacer]');
@@ -429,14 +429,14 @@ function renderConteo() {
       <div class="compo">
         <div class="compo-l">COMPOSICIÓN DE LA NOCHE</div>
         <div class="compo-bar" id="compo-bar">
-          <span style="width:${pct(c.free_23h)}%;background:#5cc8ff"></span>
-          <span style="width:${pct(c.free_lista)}%;background:#3f6db0"></span>
-          <span style="width:${pct(c.ticket)}%;background:#ff6ec7"></span>
+          <span style="width:${pct(c.free_23h)}%;background:#ff6b6b"></span>
+          <span style="width:${pct(c.free_lista)}%;background:#b3312e"></span>
+          <span style="width:${pct(c.ticket)}%;background:#ff5a5a"></span>
         </div>
         <div class="compo-leg" id="compo-leg">
-          <span class="cl"><span class="d" style="background:#5cc8ff"></span>Free 23h ${pct(c.free_23h)}%</span>
-          <span class="cl"><span class="d" style="background:#3f6db0"></span>Lista ${pct(c.free_lista)}%</span>
-          <span class="cl"><span class="d" style="background:#ff6ec7"></span>Ticket ${pct(c.ticket)}%</span>
+          <span class="cl"><span class="d" style="background:#ff6b6b"></span>Free 23h ${pct(c.free_23h)}%</span>
+          <span class="cl"><span class="d" style="background:#b3312e"></span>Lista ${pct(c.free_lista)}%</span>
+          <span class="cl"><span class="d" style="background:#ff5a5a"></span>Ticket ${pct(c.ticket)}%</span>
         </div>
       </div>
       <div class="b-foot">

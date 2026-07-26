@@ -17,7 +17,7 @@ body{background:#12101a;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe
 .login-t{font-size:15px;font-weight:700;color:#fff;margin-bottom:20px}
 .login form{display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px}
 .login input{background:#1a1826;border:1px solid #2a2838;border-radius:12px;padding:13px 14px;color:#fff;font-size:14px}
-.login button{background:linear-gradient(120deg,#ff6ec7,#a86cff);border:none;border-radius:12px;padding:13px;color:#fff;font-weight:700;font-size:14px}
+.login button{background:linear-gradient(120deg,#ff4d4d,#c81e1e);border:none;border-radius:12px;padding:13px;color:#fff;font-weight:700;font-size:14px}
 .login-err{color:#e28a8a;font-size:12px;text-align:center;min-height:16px}
 
 /* ============ ABRIR TURNO ============ */
@@ -26,12 +26,12 @@ body{background:#12101a;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe
 .abrir form{display:flex;flex-direction:column;gap:14px}
 .abrir label{display:flex;flex-direction:column;gap:6px;font-size:11px;color:#8a80a0;text-transform:uppercase;letter-spacing:0.04em;font-weight:700}
 .abrir input,.abrir select{background:#1a1826;border:1px solid #2a2838;border-radius:12px;padding:12px 13px;color:#fff;font-size:14px;font-family:inherit}
-.abrir button{margin-top:8px;background:linear-gradient(120deg,#ff6ec7,#a86cff);border:none;border-radius:14px;padding:14px;color:#fff;font-weight:800;font-size:14px}
+.abrir button{margin-top:8px;background:linear-gradient(120deg,#ff4d4d,#c81e1e);border:none;border-radius:14px;padding:14px;color:#fff;font-weight:800;font-size:14px}
 .abrir-sub{font-size:12px;color:#8a80a0;margin:-12px 0 8px}
 .noches{display:flex;flex-direction:column;gap:10px}
 .noche{background:#1a1826;border:1px solid #2a2838;border-radius:14px;padding:15px 16px;text-align:left;cursor:pointer}
 .noche-fecha{font-size:15px;font-weight:800;color:#fff}
-.noche-prod{font-size:12px;color:#b8a0f0;margin-top:3px}
+.noche-prod{font-size:12px;color:#ffb3b3;margin-top:3px}
 .link-crear{background:none !important;border:none !important;color:#8a80a0 !important;font-weight:600 !important;font-size:12px !important;padding:8px !important;text-decoration:underline;cursor:pointer}
 
 /* ============ BOTONERA (adaptado de los mockups de diseño) ============ */
@@ -45,27 +45,29 @@ body{background:#12101a;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe
 .b-editrow{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;align-items:center}
 .b-chip{font-size:9.5px;color:#e0d0ff;background:#ffffff10;border:1px solid #ffffff18;border-radius:20px;padding:5px 10px;cursor:pointer}
 .b-chip.back{color:#e6a3b0;background:#ff6a8814;border-color:#ff6a8840}
-.b-chip-edit{font-size:11px;border-radius:8px;border:1px solid #a86cff;background:#1a1826;color:#fff;padding:4px 6px}
+.b-chip-edit{font-size:11px;border-radius:8px;border:1px solid #ff4d4d;background:#1a1826;color:#fff;padding:4px 6px}
 .b-total{position:relative;z-index:1;text-align:center;margin-bottom:12px}
-.b-total-v{font-size:34px;font-weight:800;background:linear-gradient(120deg,#ff6ec7,#a86cff,#6ec3ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.b-total-v{font-size:34px;font-weight:800;background:linear-gradient(120deg,#ff8a8a,#ff3b3b,#c81e1e);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
 .b-total-l{font-size:9px;color:#8a80a0;letter-spacing:0.08em;text-transform:uppercase;margin-top:2px}
 .b-grid2{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.bbtn{border-radius:16px;padding:14px 12px;border:none;overflow:hidden;text-align:left}
-.bbtn .l{font-size:10px;font-weight:700;display:block;opacity:0.95;color:#fff}
-.bbtn .c{font-size:24px;font-weight:800;margin-top:3px;color:#fff;line-height:1}
-/* Los dos free: mismo hue (azul de marca), distinto tono para diferenciarlos. */
-.free23{background:linear-gradient(135deg,#5cc8ff,#3a86d8)}
-.freelista{background:linear-gradient(135deg,#3f6db0,#2b4f8a)}
+/* Botones apilados (los dos free): texto centrado, contenido centrado vertical. */
+.bbtn{border-radius:16px;padding:14px 12px;border:none;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:3px}
+.bbtn .l{font-size:10px;font-weight:700;display:block;opacity:0.95;color:#ff9a9a}
+.bbtn .c{font-size:24px;font-weight:800;color:#fff;line-height:1}
+/* Los dos free = tarjeta oscura con línea roja; se diferencian por la fuerza del borde. */
+.free23{background:#1c1218;border:1px solid #ff4d4d55}
+.freelista{background:#1c1218;border:1px solid #ff4d4d2e}
+.freelista .l{color:#ffb3b3}
 .freelista .hint{font-size:8px;font-weight:600;opacity:.85;letter-spacing:.02em}
 .tk-row{position:relative;z-index:1;display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-/* Ticket = botón "de plata": gradiente de marca rosa→violeta, más ancho que un free. */
-.tkbtn{flex:1 1 100px;background:linear-gradient(135deg,#ff6ec7,#a86cff);border-radius:16px;padding:14px 13px;border:none;color:#fff;display:flex;justify-content:space-between;align-items:center;text-align:left}
-.tkbtn .l{font-size:11px;font-weight:700}
+/* Ticket = tarjeta con leve énfasis (borde rojo más fuerte, fondo un pelo más cálido). */
+.tkbtn{flex:1 1 100px;background:#241318;border:1px solid #ff3b3b66;border-radius:16px;padding:14px 13px;color:#fff;display:flex;justify-content:space-between;align-items:center;text-align:left}
+.tkbtn .l{font-size:11px;font-weight:700;color:#ff9a9a}
 .tkbtn .val{font-size:9px;opacity:0.85;margin-top:2px}
 .tkbtn .c{font-size:24px;font-weight:800}
-.ra{width:70px;border-radius:16px;border:1.5px dashed #a86cff;background:#a86cff10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#b8a0f0}
-.ra.activa{background:#a86cff;border-style:solid;color:#fff}
-.ra .box{width:18px;height:18px;border-radius:5px;border:1.5px solid #a86cff;display:flex;align-items:center;justify-content:center;font-size:11px;color:#a86cff}
+.ra{width:70px;border-radius:16px;border:1.5px dashed #ff5a5a;background:#ff5a5a10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#ff9a9a}
+.ra.activa{background:#ff3b3b;border-style:solid;color:#fff}
+.ra .box{width:18px;height:18px;border-radius:5px;border:1.5px solid #ff5a5a;display:flex;align-items:center;justify-content:center;font-size:11px;color:#ff5a5a}
 .ra.activa .box{border-color:#fff;color:#fff}
 .ra .t{font-size:9px;font-weight:700}
 .ra .s{font-size:7px;opacity:0.7;text-align:center}
@@ -86,9 +88,9 @@ body{background:#12101a;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe
 .tk-add{background:none;border:1px dashed #3a3550;border-radius:12px;color:#8a80a0;font-size:11px;padding:8px;width:100%;margin-top:6px}
 .tk-addrow{display:flex;gap:6px;margin-top:6px}
 .tk-addrow input{flex:1;background:#1a1826;border:1px solid #2a2838;border-radius:10px;padding:9px;color:#fff;font-size:13px}
-.tk-addrow button{background:linear-gradient(135deg,#4d9fff,#3d6ce0);border:none;border-radius:10px;padding:9px 13px;color:#fff;font-weight:700;font-size:12px}
-/* FREE 303 = rojo característico (pasar sin lista, atribuido a un organizador). */
-.f303{position:relative;z-index:1;background:linear-gradient(135deg,#ff5d73,#e23d5a);border-radius:16px;padding:14px 12px;border:none;color:#fff;display:flex;justify-content:space-between;align-items:center;text-align:left}
+.tk-addrow button{background:linear-gradient(135deg,#ff4d4d,#c81e1e);border:none;border-radius:10px;padding:9px 13px;color:#fff;font-weight:700;font-size:12px}
+/* FREE 303 = único relleno sólido rojo (hero de la pantalla). */
+.f303{position:relative;z-index:1;background:linear-gradient(135deg,#ff3b3b,#d11f1f);box-shadow:0 0 22px #ff2e2e45;border-radius:16px;padding:14px 12px;border:none;color:#fff;display:flex;justify-content:space-between;align-items:center;text-align:left}
 .f303 .l{font-size:11px;font-weight:800}
 .f303 .s{font-size:8px;opacity:.85;margin-top:2px}
 .f303-ic{font-size:22px;font-weight:800;opacity:.9;line-height:1}
@@ -101,7 +103,7 @@ body{background:#12101a;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe
 .step button{width:34px;height:34px;border-radius:10px;border:1px solid #3a3550;background:#241f38;color:#fff;font-size:18px;font-weight:800}
 .step .n{font-size:20px;font-weight:800;color:#fff;min-width:22px;text-align:center}
 .modal-card select{background:#241f38;border:1px solid #3a3550;border-radius:10px;padding:9px 12px;color:#fff;font-size:13px;min-width:120px}
-.modal-conf{width:100%;margin-top:4px;background:linear-gradient(135deg,#a86cff,#7d5bff);border:none;border-radius:13px;padding:13px;color:#fff;font-weight:800;font-size:14px}
+.modal-conf{width:100%;margin-top:4px;background:linear-gradient(135deg,#ff3b3b,#d11f1f);border:none;border-radius:13px;padding:13px;color:#fff;font-weight:800;font-size:14px}
 .modal-cancel{width:100%;margin-top:8px;background:none;border:none;color:#8a80a0;font-size:12px;padding:6px}
 /* Guardarropa = secundario: botón neutral (no compite con ticket/free). */
 .guar{position:relative;z-index:1;background:#ffffff10;border:1px solid #ffffff20;border-radius:16px;padding:14px 12px;color:#e8e6f0;display:flex;justify-content:space-between;align-items:center;text-align:left}
@@ -120,7 +122,7 @@ body{background:#12101a;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe
 .bf.gh{background:#ffffff0d;border:1px solid #ffffff1a;color:#c0b8d0;flex:1}
 .bf.gh:disabled{opacity:0.4}
 .bf.rs{background:#ffffff0d;border:1px solid #ffffff1a;color:#d4a0a0;flex:1}
-.bf.sl{background:linear-gradient(120deg,#ff6ec7,#a86cff);color:#fff;flex:1.6}
+.bf.sl{background:linear-gradient(120deg,#ff4d4d,#c81e1e);color:#fff;flex:1.6}
 
 /* ============ CIERRE ============ */
 .cl-sum{width:100%;max-width:420px;margin:0 auto;background:#12101a;padding:20px 18px;position:relative;overflow:hidden;flex:1}
@@ -136,9 +138,9 @@ body{background:#12101a;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe
 .cbk .k{color:#9aa89e}
 .cbk .v{color:#e0e6e2;font-weight:600}
 .ra-card{background:#ffffff08;border:1px solid #ffffff14;border-radius:13px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-.ra-cl{font-size:10px;color:#b8a0f0;letter-spacing:0.03em;text-transform:uppercase;font-weight:700}
+.ra-cl{font-size:10px;color:#ff9a9a;letter-spacing:0.03em;text-transform:uppercase;font-weight:700}
 .ra-cs{font-size:9px;color:#8a80a0;margin-top:2px}
-.ra-cv{font-size:20px;font-weight:800;color:#c9b8ec}
+.ra-cv{font-size:20px;font-weight:800;color:#ffb3b3}
 .tot-c{background:#ffffff06;border:1px dashed #ffffff20;border-radius:13px;padding:12px 14px;margin-bottom:16px}
 .tot-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
 .tot-l{font-size:10px;color:#8a80a0;letter-spacing:0.03em;text-transform:uppercase;font-weight:700}
@@ -147,7 +149,7 @@ body{background:#12101a;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe
 .tot-i{flex:1}
 .tot-i .n{font-size:22px;font-weight:800;color:#fff}
 .tot-i .k{font-size:9px;color:#8a80a0;margin-top:1px}
-.fin-btn{width:100%;background:linear-gradient(120deg,#ff6ec7,#a86cff);border:none;border-radius:14px;padding:15px;font-size:14px;font-weight:800;color:#fff;font-family:inherit}
+.fin-btn{width:100%;background:linear-gradient(120deg,#ff4d4d,#c81e1e);border:none;border-radius:14px;padding:15px;font-size:14px;font-weight:800;color:#fff;font-family:inherit}
 
 /* ============ ARQUEO DE CAJA / VARIANZA ============ */
 .arq-esp{display:flex;justify-content:space-between;align-items:center;background:#1a1826;border:1px solid #2a2838;border-radius:12px;padding:12px 14px;font-size:12px;color:#8a80a0}
