@@ -17,6 +17,7 @@ import { refrescarLista, buscar, marcarEntrada } from './lista.js';
 import { estado, eventos, notificar } from './estado.js';
 import { eventos as eventosCola, contarPendientes } from '../shared/queue.js';
 import { APP_VERSION } from '../shared/config.js';
+import { fechaDMY } from '../shared/formato.js';
 
 const app = document.getElementById('app');
 // Link "volver al menú" — se muestra fuera de la botonera en vivo (para no salir
@@ -145,7 +146,7 @@ function renderElegirNoche() {
     .map(
       (n) => `
       <button class="noche" data-id="${n.id_turno}">
-        <div class="noche-fecha">${n.fecha}</div>
+        <div class="noche-fecha">${fechaDMY(n.fecha)}</div>
         <div class="noche-prod">${n.productoras?.nombre ?? ''} · ${n.clientes?.nombre ?? ''}</div>
       </button>`
     )
@@ -177,10 +178,13 @@ function renderActivarNoche() {
   app.innerHTML = `
     <div class="abrir">
       <div class="abrir-t">${n.productoras?.nombre ?? ''}</div>
-      <div class="abrir-sub">${n.clientes?.nombre ?? ''} · ${n.fecha}</div>
+      <div class="abrir-sub">${n.clientes?.nombre ?? ''} · ${fechaDMY(n.fecha)}</div>
       <form id="f-activar">
         <label>Valor del ticket (€)
           <input name="valor_ticket" type="number" min="0" step="0.5" required value="${n.valor_ticket}" />
+        </label>
+        <label>Dinero inicial en caja (€)
+          <input name="fondo_caja" type="number" min="0" step="1" inputmode="numeric" required value="${Number(n.fondo_caja ?? 250)}" />
         </label>
         <label>Tu nombre
           <input name="portero" type="text" required placeholder="ej. Marco" />
@@ -201,6 +205,7 @@ function renderActivarNoche() {
       const turno = await activarNoche(n.id_turno, {
         portero: f.get('portero'),
         valor_ticket: Number(f.get('valor_ticket')),
+        fondo_caja: Number(f.get('fondo_caja')),
       });
       await entrarAlConteo(turno);
     } catch (err) {
@@ -233,6 +238,9 @@ function renderAbrirTurno() {
         <label>Valor del ticket (€)
           <input name="valor_ticket" type="number" min="0" step="0.5" required value="5" />
         </label>
+        <label>Dinero inicial en caja (€)
+          <input name="fondo_caja" type="number" min="0" step="1" inputmode="numeric" required value="250" />
+        </label>
         <label>Tu nombre
           <input name="portero" type="text" required placeholder="ej. Marco" />
         </label>
@@ -260,6 +268,7 @@ function renderAbrirTurno() {
         fecha: f.get('fecha'),
         valor_ticket: Number(f.get('valor_ticket')),
         portero: f.get('portero'),
+        fondo_caja: Number(f.get('fondo_caja')),
       });
     } catch (err) {
       if (err.code === '23505') {
@@ -355,7 +364,7 @@ function chipFecha() {
   if (editandoCampo === 'fecha') {
     return `<input type="date" id="edit-fecha" class="b-chip-edit" value="${estado.turno.fecha}" />`;
   }
-  return `<span class="b-chip" data-action="editar-fecha">📅 ${estado.turno.fecha} ✎</span>`;
+  return `<span class="b-chip" data-action="editar-fecha">📅 ${fechaDMY(estado.turno.fecha)} ✎</span>`;
 }
 
 function chipProductora() {
@@ -601,8 +610,8 @@ function renderCerrarCaja() {
       <div class="abrir-sub">Contá el efectivo de la caja antes de cerrar el turno.</div>
       <form id="f-arqueo">
         <div class="arq-esp"><span>Efectivo esperado</span><b>€${esperado.toFixed(0)}</b></div>
-        <label>Fondo inicial (con cuánto arrancó la caja)
-          <input name="fondo" type="number" min="0" step="1" value="${fondoDefault}" />
+        <label>Dinero inicial en caja (cargado al abrir · editable)
+          <input name="fondo" type="number" min="0" step="1" inputmode="numeric" value="${fondoDefault}" />
         </label>
         <label>Efectivo contado ahora
           <input name="contado" type="number" min="0" step="1" required placeholder="contá la caja" inputmode="numeric" />
@@ -648,7 +657,7 @@ function renderCierre() {
       <div class="sum-hdr">
         <div class="sum-check">✓</div>
         <div class="sum-t">Turno cerrado</div>
-        <div class="sum-meta">303 · ${t.clientes?.nombre ?? ''} · ${t.fecha} · ${t.productoras?.nombre ?? ''} · ${t.portero}</div>
+        <div class="sum-meta">303 · ${t.clientes?.nombre ?? ''} · ${fechaDMY(t.fecha)} · ${t.productoras?.nombre ?? ''} · ${t.portero}</div>
       </div>
       <div class="caja">
         <div class="caja-l">Efectivo a rendir</div>

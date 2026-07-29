@@ -1,5 +1,6 @@
 import { supabase } from '../shared/supabaseClient.js';
 import { APP_VERSION } from '../shared/config.js';
+import { fechaDMY } from '../shared/formato.js';
 import {
   listarClientes,
   listarProductoras,
@@ -136,7 +137,7 @@ function seccionAgenda() {
     .map(
       (t) => `
       <div class="row">
-        <span class="row-nombre">${t.fecha}</span>
+        <span class="row-nombre">${fechaDMY(t.fecha)}</span>
         <span class="row-meta">${t.productoras?.nombre ?? ''} · <b>${t.nombresEnLista}</b> en lista</span>
         <button class="row-toggle" data-cancelar="${t.id_turno}">Cancelar</button>
       </div>`
@@ -233,7 +234,7 @@ function filaTurno(t) {
   const ticketMedio = tot.personas ? (total / tot.personas).toFixed(2) : '—';
   return `
     <tr class="${t.estado === 'activo' ? 'abierto' : ''}">
-      <td>${t.fecha}</td>
+      <td>${fechaDMY(t.fecha)}</td>
       <td>${t.productoras?.nombre ?? ''}</td>
       <td>${t.portero}</td>
       <td class="num">${tot.personas}</td>

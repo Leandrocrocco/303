@@ -154,10 +154,10 @@ export function render(turnos) {
         </div>
         ${cash.hasData ? `
         <div class="twrap"><table>
-          <thead><tr><th>Night</th><th>Doorman</th><th class="n">Expected</th><th class="n">Counted</th><th class="n">Variance</th></tr></thead>
+          <thead><tr><th>Night</th><th>Doorman</th><th class="n">Box start</th><th class="n">Expected</th><th class="n">Counted</th><th class="n">Variance</th></tr></thead>
           <tbody>
             ${cash.rows.slice(0, 6).map((r) => `
-              <tr><td>${(r.dia ?? '').slice(0, 3)} ${shortDate(r.fecha)}</td><td>${r.portero}</td><td class="n">${money(r.esperado)}</td><td class="n">${money(r.contado)}</td><td class="n">${varCell(r.variance)}</td></tr>`).join('')}
+              <tr><td>${(r.dia ?? '').slice(0, 3)} ${shortDate(r.fecha)}</td><td>${r.portero}</td><td class="n">${money(r.fondo)}</td><td class="n">${money(r.esperado)}</td><td class="n">${money(r.contado)}</td><td class="n">${varCell(r.variance)}</td></tr>`).join('')}
           </tbody>
         </table></div>` : `
         <div class="pending" style="padding:14px 2px">No cash counts yet. Enter the cash counted at close in the Puerta app and the variance shows up here — per night and per doorman.</div>`}

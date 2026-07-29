@@ -67,11 +67,14 @@ export async function listarNochesProgramadas() {
   return data ?? [];
 }
 
-// Activa una noche agendada: le pone portero, hora y valor de ticket, y pasa a 'activo'.
-export async function activarNoche(idTurno, { portero, valor_ticket }) {
+// Activa una noche agendada: le pone portero, hora, valor de ticket y fondo de
+// caja (dinero inicial con el que arranca el portero), y pasa a 'activo'.
+export async function activarNoche(idTurno, { portero, valor_ticket, fondo_caja }) {
+  const update = { estado: 'activo', portero, valor_ticket, hora_apertura: new Date().toISOString() };
+  if (fondo_caja != null) update.fondo_caja = fondo_caja;
   const { data, error } = await supabase
     .from('turnos')
-    .update({ estado: 'activo', portero, valor_ticket, hora_apertura: new Date().toISOString() })
+    .update(update)
     .eq('id_turno', idTurno)
     .select('*, clientes(nombre), productoras(nombre)')
     .single();
@@ -91,10 +94,12 @@ export async function cancelarApertura(idTurno) {
 }
 
 // Fallback: si no hay ninguna noche agendada, el portero crea una en el acto (ya activa).
-export async function crearTurnoAlVuelo({ id_cliente, id_productora, fecha, valor_ticket, portero }) {
+export async function crearTurnoAlVuelo({ id_cliente, id_productora, fecha, valor_ticket, portero, fondo_caja }) {
+  const fila = { id_cliente, id_productora, fecha, valor_ticket, portero, estado: 'activo', hora_apertura: new Date().toISOString() };
+  if (fondo_caja != null) fila.fondo_caja = fondo_caja;
   const { data, error } = await supabase
     .from('turnos')
-    .insert({ id_cliente, id_productora, fecha, valor_ticket, portero, estado: 'activo', hora_apertura: new Date().toISOString() })
+    .insert(fila)
     .select('*, clientes(nombre), productoras(nombre)')
     .single();
   if (error) throw error;
