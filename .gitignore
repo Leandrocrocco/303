@@ -1,8 +1,8 @@
 # Documentación de trabajo y utilidades internas (no forman parte del producto público)
 _private/
 
-# "Brain" de Claude Code — contexto de trabajo, no parte del producto público
-CLAUDE.md
+# Notas de trabajo personales/internas de Claude Code (el CLAUDE.md público SÍ se versiona)
+CLAUDE.local.md
 
 # Config local del entorno de desarrollo (no hace falta en producción)
 .claude/
