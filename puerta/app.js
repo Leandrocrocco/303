@@ -599,20 +599,24 @@ function renderResultadosBuscador(query) {
 }
 
 // Arqueo de caja antes de cerrar: el portero cuenta el efectivo y el sistema
-// calcula la varianza (contado − fondo − esperado). Esperado = efectivo a rendir
-// (estado.caja: tickets no-RA + guardarropa, sin RA).
+// calcula la varianza (contado − total esperado en caja). El dinero inicial ya
+// se cargó al abrir el turno; acá NO se vuelve a pedir, se muestra discriminado
+// sumándose al recaudado (estado.caja: tickets no-RA + guardarropa, sin RA) para
+// que el portero vea contra qué total comparar lo que cuenta.
 function renderCerrarCaja() {
-  const esperado = estado.caja;
-  const fondoDefault = Number(estado.turno.fondo_caja ?? 250);
+  const fondo = Number(estado.turno.fondo_caja ?? 0);
+  const recaudado = estado.caja;
+  const total = fondo + recaudado;
   app.innerHTML = `
     <div class="abrir">
       <div class="abrir-t">Cerrar caja</div>
       <div class="abrir-sub">Contá el efectivo de la caja antes de cerrar el turno.</div>
       <form id="f-arqueo">
-        <div class="arq-esp"><span>Efectivo esperado</span><b>€${esperado.toFixed(0)}</b></div>
-        <label>Dinero inicial en caja (cargado al abrir · editable)
-          <input name="fondo" type="number" min="0" step="1" inputmode="numeric" value="${fondoDefault}" />
-        </label>
+        <div class="arq-box">
+          <div class="arq-row"><span>Dinero inicial (al abrir)</span><b>€${fondo.toFixed(0)}</b></div>
+          <div class="arq-row"><span>Efectivo recaudado</span><b>€${recaudado.toFixed(0)}</b></div>
+          <div class="arq-row total"><span>Total esperado en caja</span><b>€${total.toFixed(0)}</b></div>
+        </div>
         <label>Efectivo contado ahora
           <input name="contado" type="number" min="0" step="1" required placeholder="contá la caja" inputmode="numeric" />
         </label>
@@ -625,19 +629,18 @@ function renderCerrarCaja() {
   const form = document.getElementById('f-arqueo');
   const varEl = document.getElementById('arq-var');
   const recalc = () => {
-    const fondo = Number(form.fondo.value || 0);
     if (form.contado.value === '') { varEl.textContent = 'Varianza: —'; varEl.className = 'arq-var'; return; }
-    const v = Number(form.contado.value) - fondo - esperado;
+    const v = Number(form.contado.value) - total;
     varEl.textContent = `Varianza: ${v < 0 ? '−€' + Math.abs(v).toFixed(0) : '€' + v.toFixed(0)}`;
     varEl.className = 'arq-var ' + (v < 0 ? 'neg' : 'ok');
   };
-  form.fondo.addEventListener('input', recalc);
   form.contado.addEventListener('input', recalc);
   document.getElementById('btn-cancelar-cierre').addEventListener('click', () => { estado.vista = 'conteo'; render(); });
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     try {
-      await cerrarTurno({ fondo_caja: Number(form.fondo.value || 0), efectivo_contado: Number(form.contado.value) });
+      // El fondo NO se toca: se conserva el que se cargó al abrir el turno.
+      await cerrarTurno({ efectivo_contado: Number(form.contado.value) });
       desglosecierre = await calcularDesgloseCierre(estado.turno.id_turno);
       estado.vista = 'cierre';
       render();
@@ -650,8 +653,10 @@ function renderCerrarCaja() {
 function renderCierre() {
   const t = estado.turno;
   const d = desglosecierre;
+  const fondo = Number(t.fondo_caja ?? 0);
+  const esperadoCaja = fondo + d.caja; // lo que físicamente tiene que haber en la caja
   const contado = t.efectivo_contado == null ? null : Number(t.efectivo_contado);
-  const variance = contado == null ? null : contado - Number(t.fondo_caja ?? 0) - d.caja;
+  const variance = contado == null ? null : contado - esperadoCaja;
   app.innerHTML = `
     <div class="cl-sum">
       <div class="sum-hdr">
@@ -660,16 +665,17 @@ function renderCierre() {
         <div class="sum-meta">303 · ${t.clientes?.nombre ?? ''} · ${fechaDMY(t.fecha)} · ${t.productoras?.nombre ?? ''} · ${t.portero}</div>
       </div>
       <div class="caja">
-        <div class="caja-l">Efectivo a rendir</div>
-        <div class="caja-v">€${d.caja.toFixed(0)}</div>
+        <div class="caja-l">Efectivo esperado en caja</div>
+        <div class="caja-v">€${esperadoCaja.toFixed(0)}</div>
         <div class="caja-break">
+          <div class="cbk"><span class="k">Dinero inicial · al abrir</span><span class="v">€${fondo.toFixed(0)}</span></div>
           <div class="cbk"><span class="k">Tickets puerta · ${d.ticketsCaja} × ${t.valor_ticket}€</span><span class="v">€${(d.ticketsCaja * t.valor_ticket).toFixed(0)}</span></div>
           <div class="cbk"><span class="k">Guardarropa · ${d.guardarropa} × 2€</span><span class="v">€${(d.guardarropa * 2).toFixed(0)}</span></div>
         </div>
       </div>
       ${variance == null ? '' : `
       <div class="varc ${variance < 0 ? 'neg' : 'ok'}">
-        <div><div class="varc-l">Varianza de caja</div><div class="varc-s">contado €${contado.toFixed(0)} − fondo €${Number(t.fondo_caja ?? 0).toFixed(0)} − esperado €${d.caja.toFixed(0)}</div></div>
+        <div><div class="varc-l">Varianza de caja</div><div class="varc-s">contado €${contado.toFixed(0)} − esperado en caja €${esperadoCaja.toFixed(0)}</div></div>
         <div class="varc-v">${variance < 0 ? '−€' + Math.abs(variance).toFixed(0) : '€' + variance.toFixed(0)}</div>
       </div>`}
       <div class="ra-card">

@@ -8,4 +8,4 @@ export const SUPABASE_ANON_KEY = 'sb_publishable_DJTWtYT6IIh4YLwa_N8yag_-l4k8HmO
 // Sello de versión visible en cada app. Se sube a mano en cada deploy que cambie
 // comportamiento: si un teléfono muestra una versión vieja, se sabe que quedó con
 // caché del navegador (útil mientras no haya service worker con "red primero").
-export const APP_VERSION = 'v2026.07.29a';
+export const APP_VERSION = 'v2026.07.30a';
