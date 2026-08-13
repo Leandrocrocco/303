@@ -161,15 +161,23 @@ export function weeklyBuckets(turnos, maxWeeks = 52) {
   if (turnos.length === 0) return [];
   const byWeekKey = new Map();
   let earliest = null;
+  let latestConActividad = null;
   for (const t of turnos) {
     const dt = weekStartLocal(t.fecha);
     const key = `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`;
     if (!byWeekKey.has(key)) byWeekKey.set(key, []);
     byWeekKey.get(key).push(t);
     if (!earliest || dt < earliest) earliest = dt;
+    // Un turno cerrado sin ninguna entrada real (prueba, evento cerrado en
+    // blanco) no cuenta para anclar "la semana más reciente": si fuera el
+    // ancla, correría el ancla hacia una semana vacía y empujaría la semana
+    // real hacia "anterior" — exactamente el bug de "se desarma el dashboard".
+    const tieneActividad = t.personas > 0 || t.doorRevenue > 0 || t.barraRevenue > 0;
+    if (tieneActividad && (!latestConActividad || dt > latestConActividad)) latestConActividad = dt;
   }
-  // turnos[0] es el más reciente porque vienen ordenados fecha desc.
-  const latestWeekStart = weekStartLocal(turnos[0].fecha);
+  // Si NINGÚN turno tiene actividad real (historial vacío de verdad), no hay
+  // mejor ancla que la fecha más reciente tal cual vino.
+  const latestWeekStart = latestConActividad ?? weekStartLocal(turnos[0].fecha);
   // No inventar semanas vacías ANTES de la primera con data: si el rango pedido
   // (maxWeeks, ej. "año") es más largo que la historia real, se recorta a la
   // historia — el gráfico arranca donde empiezan los datos, no a mitad de vacío.
@@ -214,7 +222,15 @@ function findeKey(fechaStr) {
 export function nochesUltimaSemana(turnos) {
   const conKey = turnos.map((t) => ({ t, key: findeKey(t.fecha) })).filter((x) => x.key);
   if (conKey.length === 0) return [];
-  const ultimo = conKey.reduce((max, x) => (x.key > max ? x.key : max), conKey[0].key);
+  // Mismo criterio que weeklyBuckets: el finde más reciente se elige entre los
+  // que tienen actividad real. Un turno cerrado en blanco (prueba, cancelado)
+  // no puede volverse "el finde" y tapar el último finde real con ceros.
+  const conActividad = conKey.filter((x) => x.t.personas > 0 || x.t.doorRevenue > 0 || x.t.barraRevenue > 0);
+  const pool = conActividad.length > 0 ? conActividad : conKey;
+  const ultimo = pool.reduce((max, x) => (x.key > max ? x.key : max), pool[0].key);
+  // Una vez elegido el finde, se muestran TODAS sus noches (aunque alguna
+  // puntual haya quedado en cero) — el filtro de actividad es solo para elegir
+  // el ancla, no para ocultar noches reales de ese mismo finde.
   return conKey.filter((x) => x.key === ultimo).map((x) => x.t).sort((a, b) => (a.fecha < b.fecha ? -1 : 1));
 }
 

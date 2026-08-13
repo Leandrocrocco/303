@@ -17,7 +17,7 @@ import { refrescarLista, buscar, marcarEntrada } from './lista.js';
 import { estado, eventos, notificar } from './estado.js';
 import { eventos as eventosCola, contarPendientes } from '../shared/queue.js';
 import { APP_VERSION } from '../shared/config.js';
-import { fechaDMY } from '../shared/formato.js';
+import { fechaDMY, diaAbrev } from '../shared/formato.js';
 
 const app = document.getElementById('app');
 // Link "volver al menú" — se muestra fuera de la botonera en vivo (para no salir
@@ -146,8 +146,15 @@ function renderElegirNoche() {
     .map(
       (n) => `
       <button class="noche" data-id="${n.id_turno}">
-        <div class="noche-fecha">${fechaDMY(n.fecha)}</div>
-        <div class="noche-prod">${n.productoras?.nombre ?? ''} · ${n.clientes?.nombre ?? ''}</div>
+        <div class="noche-fecha">
+          <div class="noche-dia">${diaAbrev(n.fecha)}</div>
+          <div class="noche-num">${Number(n.fecha.slice(8, 10))}</div>
+        </div>
+        <div class="noche-info">
+          <div class="noche-prod">${n.productoras?.nombre ?? ''}</div>
+          <div class="noche-cliente">${n.clientes?.nombre ?? ''}</div>
+        </div>
+        <span class="noche-flecha">›</span>
       </button>`
     )
     .join('');
@@ -222,9 +229,17 @@ function renderAbrirTurno() {
   const opcionesClientes = clientesDisponibles
     .map((c) => `<option value="${c.id_cliente}">${c.nombre}</option>`)
     .join('');
+  // Se llega acá por dos caminos distintos, y el texto debe explicar cuál fue:
+  // (a) no había NINGUNA noche agendada (nochesProgramadas vacío) — típico al
+  //     cerrar un turno y no quedar más agenda, o al entrar sin nada cargado.
+  // (b) sí había noches agendadas pero el portero eligió "crearla ahora" desde
+  //     renderElegirNoche (btn-crear-vuelo) — ahí no es que falte agenda.
+  const sinAgenda = nochesProgramadas.length === 0;
   app.innerHTML = `
     <div class="abrir">
-      <div class="abrir-t">Abrir turno</div>
+      ${BACK_LINK}
+      <div class="abrir-t">${sinAgenda ? 'No hay fechas cargadas' : 'Abrir turno'}</div>
+      ${sinAgenda ? '<div class="abrir-sub">Todavía no hay ninguna noche agendada por el admin. Cargá esta a mano, o pedile al admin que agende las próximas desde el panel.</div>' : ''}
       <form id="f-abrir">
         <label>Cliente
           <select name="id_cliente" required>${opcionesClientes}</select>

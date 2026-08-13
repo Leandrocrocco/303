@@ -87,6 +87,23 @@ export async function eliminarTurno(idTurno) {
   if (e2) throw e2;
 }
 
+// Importa transacciones de barra (Revolut POS) ya parseadas y limpias —
+// ver admin/importBarra.js para el parseo del CSV. El id_turno lo completa
+// solo un trigger en la base (migración 013, mismo corte de noche que
+// noche_303) — acá no se decide a qué turno pertenece cada fila, eso vive
+// en un solo lugar. `ignoreDuplicates` hace que reimportar el mismo CSV
+// dos veces no duplique filas (unique en id_cliente + receipt_ref) — las
+// que ya existían simplemente no vuelven en `data`.
+export async function importarTransaccionesBarra(idCliente, filas) {
+  const payload = filas.map((f) => ({ ...f, id_cliente: idCliente }));
+  const { data, error } = await supabase
+    .from('barra_transacciones')
+    .upsert(payload, { onConflict: 'id_cliente,receipt_ref', ignoreDuplicates: true })
+    .select('id_transaccion, id_turno');
+  if (error) throw error;
+  return data ?? [];
+}
+
 // Turnos cerrados del cliente con sus totales agregados. Los totales salen
 // de `turno_totales` / `lista_conteo` (vistas que agregan DENTRO de Postgres,
 // una fila por turno) — nunca se traen las filas de `ingresos`/`lista` una

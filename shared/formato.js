@@ -12,3 +12,12 @@ export function fechaDMY(iso) {
   if (!y || !m || !d) return String(iso);
   return `${d}/${m}/${y}`;
 }
+
+const DIAS_ABBR = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+// ISO 'YYYY-MM-DD' → 'Jue' etc. Componentes locales, mismo motivo que fechaDMY
+// (evita que `new Date()` corra el día según el huso horario del navegador).
+export function diaAbrev(iso) {
+  const [y, m, d] = String(iso).slice(0, 10).split('-').map(Number);
+  return DIAS_ABBR[new Date(y, m - 1, d).getDay()];
+}

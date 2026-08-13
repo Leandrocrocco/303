@@ -1,6 +1,6 @@
 import { supabase } from '../shared/supabaseClient.js';
 import { APP_VERSION } from '../shared/config.js';
-import { fechaDMY } from '../shared/formato.js';
+import { fechaDMY, diaAbrev } from '../shared/formato.js';
 import {
   listarClientes,
   listarProductoras,
@@ -14,7 +14,9 @@ import {
   eliminarTurno,
   actualizarAcuerdoProductora,
   actualizarBarraRevenue,
+  importarTransaccionesBarra,
 } from './data.js';
+import { parsearCsvRevolut, armarPreview } from './importBarra.js';
 
 const app = document.getElementById('app');
 
@@ -27,6 +29,11 @@ const vista = {
   turnoMes: null,     // 'YYYY-MM' | 'all' | null (null = default al mes más reciente)
   turnoProd: 'all',   // nombre de productora | 'all'
 };
+
+// Estado del import de barra (Revolut) — vive fuera de `vista` porque es
+// data de trabajo (el CSV recién leído, todavía sin guardar), no data que
+// venga de Supabase. Se resetea a null después de cada import confirmado.
+let importState = null; // { filas, canceladas, totalFilas, preview } | null
 
 async function iniciar() {
   const { data } = await supabase.auth.getSession();
@@ -115,6 +122,7 @@ function render() {
     </header>
     <main class="wrap">
       ${seccionTurnos()}
+      ${seccionImportarBarra()}
       ${seccionAgenda()}
       ${seccionProductoras()}
       ${seccionOrganizadores()}
@@ -128,32 +136,83 @@ function fechaLocalHoy() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+// "hoy" / "mañana" / "en N días" — para la meta de cada tarjeta de agenda.
+function diasHasta(fechaStr) {
+  const [y, m, d] = fechaStr.split('-').map(Number);
+  const target = new Date(y, m - 1, d);
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const diff = Math.round((target - hoy) / 86400000);
+  if (diff === 0) return 'hoy';
+  if (diff === 1) return 'mañana';
+  if (diff > 1) return `en ${diff} días`;
+  return diaAbrev(fechaStr) + ' ' + fechaDMY(fechaStr); // agendada en el pasado (caso raro)
+}
+
+// Próximas `n` fechas jue/vie/sáb desde hoy — atajos para no tipear en el
+// selector nativo. No filtra las ya ocupadas: se muestran igual, y el
+// selector avisa si la elegida ya tiene noche cargada (misma regla que el
+// índice único de la base — ver migración 014).
+function proximosFinDeSemana(n = 4) {
+  const out = [];
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  while (out.length < n) {
+    if ([4, 5, 6].includes(d.getDay())) {
+      out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`);
+    }
+    d.setDate(d.getDate() + 1);
+  }
+  return out;
+}
+
+function tarjetaAgenda(t) {
+  return `
+    <div class="ag-card">
+      <div class="ag-fecha">
+        <div class="ag-dia">${diaAbrev(t.fecha)}</div>
+        <div class="ag-num">${Number(t.fecha.slice(8, 10))}</div>
+      </div>
+      <div class="ag-info">
+        <div class="ag-prod">${t.productoras?.nombre ?? ''}</div>
+        <div class="ag-meta">${diasHasta(t.fecha)} · ${t.nombresEnLista} en lista</div>
+      </div>
+      <button class="ag-cancel" data-cancelar="${t.id_turno}" aria-label="Cancelar" title="Cancelar">✕</button>
+    </div>`;
+}
+
 function seccionAgenda() {
   const programadas = vista.turnos.filter((t) => t.estado === 'programado');
   const activas = vista.productoras.filter((p) => p.activo);
   const opcionesProd = activas.map((p) => `<option value="${p.id_productora}">${p.nombre}</option>`).join('');
 
-  const filas = programadas
-    .map(
-      (t) => `
-      <div class="row">
-        <span class="row-nombre">${fechaDMY(t.fecha)}</span>
-        <span class="row-meta">${t.productoras?.nombre ?? ''} · <b>${t.nombresEnLista}</b> en lista</span>
-        <button class="row-toggle" data-cancelar="${t.id_turno}">Cancelar</button>
-      </div>`
-    )
+  // Cualquier turno (programado/activo/cerrado) ocupa su fecha para este
+  // cliente — mismo criterio que el índice único de la base.
+  const fechasOcupadas = new Set(vista.turnos.map((t) => t.fecha));
+  const sugeridas = proximosFinDeSemana(4);
+  const chips = sugeridas
+    .map((f) => `<button type="button" class="ag-chip" data-fecha="${f}">${diaAbrev(f)} ${Number(f.slice(8, 10))}</button>`)
     .join('');
+  const fechaDefault = sugeridas.find((f) => !fechasOcupadas.has(f)) ?? sugeridas[0];
+
+  const filas = programadas.map(tarjetaAgenda).join('');
 
   return `
     <details class="card">
       <summary><h2>Agenda</h2><span class="count">${programadas.length}</span><span class="chev">▶</span></summary>
       <div class="card-body">
         <p class="hint">Agendá las noches por adelantado. El organizador carga la lista contra una noche agendada, y el portero la activa al llegar.</p>
-        <div class="rows">${filas || '<div class="row-vacia">Ninguna noche agendada.</div>'}</div>
-        <form class="alta alta-agenda" id="f-agenda" ${activas.length ? '' : 'style="opacity:.5;pointer-events:none"'}>
-          <select name="id_productora" required>${opcionesProd}</select>
-          <input name="fecha" type="date" required value="${fechaLocalHoy()}" />
-          <button type="submit">Agendar noche</button>
+        <div class="ag-rows">${filas || '<div class="row-vacia">Ninguna noche agendada.</div>'}</div>
+        <form class="agenda-form" id="f-agenda" ${activas.length ? '' : 'style="opacity:.5;pointer-events:none"'}>
+          <label class="agenda-lbl">Productora
+            <select name="id_productora" required>${opcionesProd}</select>
+          </label>
+          <label class="agenda-lbl">Fecha
+            <div class="ag-chips">${chips}</div>
+            <input name="fecha" type="date" required value="${fechaDefault}" id="ag-fecha-input" />
+          </label>
+          <div id="ag-estado-fecha" class="ag-estado"></div>
+          <button type="submit" id="ag-submit">Agendar noche</button>
         </form>
         ${activas.length ? '' : '<p class="hint">Cargá al menos una productora activa para poder agendar.</p>'}
       </div>
@@ -322,6 +381,67 @@ function seccionTurnos() {
     </details>`;
 }
 
+// Import de barra (Revolut POS): subís el CSV de transacciones, se arma un
+// preview agrupado por noche (nada se guarda todavía) y recién al confirmar
+// se manda a Supabase. El de bebidas desglosadas está deshabilitado a
+// propósito — todavía no vimos ese formato (ver importBarra.js).
+function seccionImportarBarra() {
+  return `
+    <details class="card" id="card-import-barra">
+      <summary><h2>Importar barra (Revolut)</h2><span class="chev">▶</span></summary>
+      <div class="card-body">
+        <p class="hint">Subí el CSV de transacciones que exportás del panel de Revolut (cash + card, venta por venta).
+          Cada venta se pega sola a la noche que le corresponde — no hace falta elegir fecha a mano.
+          El CSV de bebidas desglosadas todavía no está habilitado: en cuanto lo tengas se lo sumamos a esto,
+          por ahora este import solo carga los montos de cash/card, sin el detalle de qué se vendió.</p>
+        <div class="import-files">
+          <label>CSV de transacciones (Revolut)
+            <input type="file" id="f-csv-transacciones" accept=".csv" />
+          </label>
+          <label class="import-file-pendiente">CSV de bebidas desglosadas (pendiente — falta ver el formato)
+            <input type="file" disabled />
+          </label>
+        </div>
+        <button id="btn-analizar-csv" type="button" class="btn-imp">Analizar</button>
+        <div id="import-preview">${importState?.preview ? renderPreviewImport() : ''}</div>
+      </div>
+    </details>`;
+}
+
+function renderPreviewImport() {
+  const { preview, canceladas, totalFilas } = importState;
+  const filasNoches = preview.noches
+    .map((n) => `<tr><td>${fechaDMY(n.fecha)}</td><td class="num">${n.n}</td><td class="num">€${n.cash.toFixed(0)}</td><td class="num">€${n.card.toFixed(0)}</td></tr>`)
+    .join('');
+  return `
+    <div class="preview-resumen">
+      ${totalFilas} filas leídas · ${canceladas} canceladas (se ignoran) ·
+      ${preview.sinMatch.length} sin noche que les corresponda${preview.sinMatch.length ? ' (no se importan — revisalas antes)' : ''}.
+    </div>
+    <table class="turnos">
+      <thead><tr><th>Noche</th><th class="num">Ventas</th><th class="num">Cash</th><th class="num">Card</th></tr></thead>
+      <tbody>${filasNoches || '<tr><td colspan="4" class="row-vacia">Ninguna fila matcheó una noche ya cargada.</td></tr>'}</tbody>
+    </table>
+    ${preview.noches.length ? '<button id="btn-confirmar-import" type="button" class="btn-imp">Confirmar e importar</button>' : ''}`;
+}
+
+async function confirmarImport() {
+  if (!importState) return;
+  const nochesOk = new Set(importState.preview.noches.map((n) => n.fecha));
+  const aImportar = importState.filas
+    .filter((f) => nochesOk.has(f._nocheAprox))
+    .map(({ _nocheAprox, ...resto }) => resto);
+  try {
+    const insertadas = await importarTransaccionesBarra(vista.idCliente, aImportar);
+    const yaExistian = aImportar.length - insertadas.length;
+    alert(`Listo: ${insertadas.length} transacciones nuevas importadas.` + (yaExistian ? ` ${yaExistian} ya estaban de una carga anterior, se ignoraron.` : ''));
+    importState = null;
+    await cargarDatosCliente();
+  } catch (err) {
+    alert('No se pudo importar: ' + (err.message ?? err));
+  }
+}
+
 function cablear() {
   document.getElementById('sel-cliente').addEventListener('change', async (e) => {
     vista.idCliente = e.target.value;
@@ -366,9 +486,18 @@ function cablear() {
       await crearTurnoProgramado(vista.idCliente, f.get('id_productora'), f.get('fecha'));
       await cargarDatosCliente();
     } catch (err) {
+      // idx_turnos_un_evento_por_dia (migración 014): el aviso en pantalla ya
+      // frena esto antes de llegar acá, pero la base es la que manda de verdad
+      // (por si dos personas cargan al mismo tiempo, o algo raro pasa por otro lado).
+      if (err.code === '23505') {
+        alert('Ya hay una noche cargada para esa fecha en este local.');
+        return;
+      }
       alert('No se pudo agendar: ' + (err.message ?? err));
     }
   });
+
+  cablearAgenda();
 
   app.querySelectorAll('[data-cancelar]').forEach((btn) => {
     btn.addEventListener('click', async () => {
@@ -412,6 +541,23 @@ function cablear() {
   });
 
   cablearBarraForms();
+
+  document.getElementById('btn-analizar-csv')?.addEventListener('click', async () => {
+    const input = document.getElementById('f-csv-transacciones');
+    const file = input.files?.[0];
+    if (!file) { alert('Elegí un archivo primero.'); return; }
+    try {
+      const texto = await file.text();
+      const { filas, canceladas, totalFilas } = parsearCsvRevolut(texto);
+      const preview = armarPreview(filas, vista.turnos);
+      importState = { filas, canceladas, totalFilas, preview };
+      const el = document.getElementById('import-preview');
+      if (el) el.innerHTML = renderPreviewImport();
+      document.getElementById('btn-confirmar-import')?.addEventListener('click', confirmarImport);
+    } catch (err) {
+      alert('No se pudo leer el CSV: ' + (err.message ?? err));
+    }
+  });
 }
 
 // Engancha los formularios de barra. Se llama en cada render y también tras
@@ -430,6 +576,31 @@ function cablearBarraForms() {
       }
     });
   });
+}
+
+// Chips de fecha + aviso en vivo de "fecha libre / ya ocupada" en el form de
+// Agenda. El aviso es de cortesía (UX) — quien manda de verdad es el índice
+// único de la base (migración 014); el catch del submit ya cubre ese caso.
+function cablearAgenda() {
+  const input = document.getElementById('ag-fecha-input');
+  const estado = document.getElementById('ag-estado-fecha');
+  const btn = document.getElementById('ag-submit');
+  if (!input || !estado || !btn) return;
+
+  function actualizar() {
+    const ocupadas = new Set(vista.turnos.map((t) => t.fecha));
+    const libre = !ocupadas.has(input.value);
+    estado.className = 'ag-estado ' + (libre ? 'libre' : 'ocupada');
+    estado.textContent = libre ? '✓ Fecha libre' : '⚠ Ya hay una noche cargada ese día';
+    btn.disabled = !libre;
+    app.querySelectorAll('.ag-chip').forEach((c) => c.classList.toggle('activa', c.dataset.fecha === input.value));
+  }
+
+  app.querySelectorAll('.ag-chip').forEach((chip) => {
+    chip.addEventListener('click', () => { input.value = chip.dataset.fecha; actualizar(); });
+  });
+  input.addEventListener('change', actualizar);
+  actualizar();
 }
 
 // Actualiza solo el resumen + el cuerpo de la tabla de turnos según los filtros,
