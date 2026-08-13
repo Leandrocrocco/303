@@ -1,39 +1,24 @@
-/* 303 · Owner dashboard — gradient/glossy theme, approved from the style probe. */
+/* 303 · Owner dashboard — soft/clean theme, confirmed 13 ago 2026 (era gradient/glossy navy).
+   Un solo acento neutro (--accent), sin gradiente de marca ni glow — ver memoria de proyecto
+   "rediseño visual 2026". --grad/--acc1-3 se mantienen como alias por compatibilidad con reglas
+   existentes, ahora resuelven a color plano en vez de degradado. */
 :root{
-  --bg:#0a0e27; --bg2:#0d1233;
-  --surface:#131a3a; --surface2:#181f42; --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.14);
-  --ink:#f2f1fb; --ink-dim:#a5a4c2; --ink-mute:#8886a8;
-  --acc1:#ff6ec7; --acc2:#a86cff; --acc3:#6ec3ff;
-  --grad:linear-gradient(120deg,var(--acc3),var(--acc2),var(--acc1));
-  --good:#2fbf6a; --good-bg:rgba(47,191,106,.12); --good-bd:rgba(47,191,106,.3);
-  --watch:#ffd166; --watch-bg:rgba(255,209,102,.12); --watch-bd:rgba(255,209,102,.3);
-  --risk:#ff6a88; --risk-bg:rgba(255,106,136,.12); --risk-bd:rgba(255,106,136,.3);
-  --neutral-bg:rgba(255,255,255,.05); --neutral-bd:rgba(255,255,255,.12);
-  --card-glow:rgba(168,108,255,.16);
+  --bg:#F4F5F7; --bg2:#F4F5F7;
+  --surface:#FFFFFF; --surface2:#FFFFFF; --border:#E3E5E9; --border2:#CBCED4;
+  --ink:#15161B; --ink-dim:#5B5E68; --ink-mute:#9296A0;
+  --accent:#3E4A5C; --acc1:#3E4A5C; --acc2:#3E4A5C; --acc3:#3E4A5C;
+  --grad:var(--accent);
+  --good:#2F8F5B; --good-bg:#E5F3EA; --good-bd:#BFE0CC;
+  --watch:#A5720C; --watch-bg:#FBF1DE; --watch-bd:#EFDBAE;
+  --risk:#B7392F; --risk-bg:#FBEAE8; --risk-bd:#F0C9C4;
+  --neutral-bg:#F1EAE1; --neutral-bd:#E4D9CB;
+  --card-glow:transparent;
+  /* familias categóricas — mismo significado en todas las tabs, ver memoria de proyecto */
+  --thu:#8FC7E8; --fri:#4E9BD1; --sat:#1F5C96;
+  --free-l:#8FE1D2; --free-d:#1B8F7B;
+  --paid:#E07B39; --ra:#DD4A3D; --bar:#7B5FC7; --house:#8C7355;
   --font-body:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  --font-num:ui-monospace,'SF Mono','Cascadia Code',Consolas,monospace;
-}
-:root[data-theme="light"]{
-  --bg:#f2f1fb; --bg2:#ffffff;
-  --surface:#ffffff; --surface2:#f7f6fd; --border:#e6e4f5; --border2:#d8d5ee;
-  --ink:#1a1830; --ink-dim:#5c5a78; --ink-mute:#8b899f;
-  --good-bg:#eaf9f0; --good-bd:#bfe9d1;
-  --watch-bg:#fff6e2; --watch-bd:#f3ddac;
-  --risk-bg:#ffeaf0; --risk-bd:#f6c3d3;
-  --neutral-bg:#f1effa; --neutral-bd:#e0ddef;
-  --card-glow:rgba(168,108,255,.08);
-}
-@media(prefers-color-scheme:light){
-  :root:not([data-theme="dark"]){
-    --bg:#f2f1fb; --bg2:#ffffff;
-    --surface:#ffffff; --surface2:#f7f6fd; --border:#e6e4f5; --border2:#d8d5ee;
-    --ink:#1a1830; --ink-dim:#5c5a78; --ink-mute:#8b899f;
-    --good-bg:#eaf9f0; --good-bd:#bfe9d1;
-    --watch-bg:#fff6e2; --watch-bd:#f3ddac;
-    --risk-bg:#ffeaf0; --risk-bd:#f6c3d3;
-    --neutral-bg:#f1effa; --neutral-bd:#e0ddef;
-    --card-glow:rgba(168,108,255,.08);
-  }
+  --font-num:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -47,7 +32,7 @@ button{font-family:inherit;cursor:pointer}
 .login-t{font-size:16px;font-weight:700;margin-bottom:20px}
 .login form{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
 .login input{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:13px 14px;color:var(--ink);font-size:14px}
-.login button{background:var(--grad);border:none;border-radius:12px;padding:13px;color:#0a0e27;font-weight:800;font-size:14px;max-width:300px;width:100%}
+.login button{background:var(--grad);border:none;border-radius:12px;padding:13px;color:#fff;font-weight:800;font-size:14px;max-width:300px;width:100%}
 .err{color:var(--risk);font-size:12px;text-align:center;min-height:16px}
 .no-admin-msg{color:var(--ink-mute);font-size:13px;text-align:center;max-width:290px;margin-bottom:16px;line-height:1.5}
 .vacio{display:flex;align-items:center;justify-content:center;min-height:100vh;color:var(--ink-mute);padding:24px;text-align:center}
@@ -104,7 +89,7 @@ button{font-family:inherit;cursor:pointer}
 .kpi-badge{display:inline-flex;align-items:center;gap:5px;margin-top:11px;font-size:11.5px;font-weight:700;border-radius:20px;padding:4px 11px;position:relative}
 .kpi-badge.good{color:var(--good);background:var(--good-bg);border:1px solid var(--good-bd)}
 .kpi-badge.risk{color:var(--risk);background:var(--risk-bg);border:1px solid var(--risk-bd)}
-.kpi-badge.neutral{color:var(--ink-dim);background:var(--neutral-bg);border:1px solid var(--neutral-bd)}
+.kpi-badge.neutral{color:var(--house);background:var(--neutral-bg);border:1px solid var(--neutral-bd)}
 .ring-card{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px}
 
 /* ── weekend / recap cards ───────────────────────────── */
@@ -191,7 +176,7 @@ tag{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:
 tag.top{color:var(--good);background:var(--good-bg);border-color:var(--good-bd)}
 tag.watch{color:var(--watch);background:var(--watch-bg);border-color:var(--watch-bd)}
 tag.risk{color:var(--risk);background:var(--risk-bg);border-color:var(--risk-bd)}
-tag.neutral{color:var(--ink-dim);background:var(--neutral-bg);border-color:var(--neutral-bd)}
+tag.neutral{color:var(--house);background:var(--neutral-bg);border-color:var(--neutral-bd)}
 .pending{color:var(--ink-mute);font-size:11.5px;font-style:italic}
 
 .barlist{display:flex;flex-direction:column;gap:11px;position:relative}

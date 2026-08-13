@@ -1,14 +1,25 @@
 // Chart builders shared by every tab. One place for palette, gradients and
 // scroll-sizing so the five tabs don't each reinvent their own chart config.
 
-// El degradado de marca (rosa/violeta/azul) ya vivía en el wordmark del
-// dashboard viejo — ahora también vive en números hero, líneas y anillos.
-export const BRAND_GRADIENT = ['#6ec3ff', '#a86cff', '#ff6ec7'];
+// Paleta categórica confirmada 13 ago 2026 (ver memoria de proyecto "rediseño
+// visual 2026"). Cada dimensión tiene su propio hue, sin reusar entre sí — el
+// tema navy anterior reusaba el mismo BRAND_GRADIENT para días de la semana Y
+// para door/RA/bar en revenue mix, lo cual confundía dos cosas distintas.
+export const DAY_THU = '#8FC7E8';
+export const DAY_FRI = '#4E9BD1';
+export const DAY_SAT = '#1F5C96';
 
-export const COLOR_FREE = '#6ec3ff';
-export const COLOR_PAID = '#2fbf6a';
-export const COLOR_RA = '#a86cff';
-export const COLOR_MUTED_LINE = 'rgba(241,239,247,.35)';
+// Free hoy es un solo número agregado en turno_totales (no separa 23h/lista
+// todavía — ver memoria de proyecto), así que se usa el tono más fuerte de la
+// familia teal como color único. free-l/free-d quedan listos para cuando la
+// vista separe los dos sub-tipos.
+export const COLOR_FREE = '#1B8F7B';
+export const COLOR_FREE_L = '#8FE1D2';
+export const COLOR_FREE_D = '#1B8F7B';
+export const COLOR_PAID = '#E07B39'; // paid / door cash — misma categoría en todos los gráficos
+export const COLOR_RA = '#DD4A3D'; // distinto del rojo de riesgo (--risk) y del rojo de marca
+export const COLOR_BAR = '#7B5FC7';
+export const COLOR_MUTED_LINE = 'rgba(21,22,27,.18)';
 
 // Paleta categórica fija (8 slots, validada) — la misma que ya se usaba en
 // el diseño anterior. Más allá de 8 productoras, se agrupan en gris: mejor
@@ -34,9 +45,9 @@ export function assignProducerColors(ranking) {
 
 function brandGradient(ctx, x0, y0, x1, y1) {
   const g = ctx.createLinearGradient(x0, y0, x1, y1);
-  g.addColorStop(0, BRAND_GRADIENT[0]);
-  g.addColorStop(0.55, BRAND_GRADIENT[1]);
-  g.addColorStop(1, BRAND_GRADIENT[2]);
+  g.addColorStop(0, DAY_THU);
+  g.addColorStop(0.55, DAY_FRI);
+  g.addColorStop(1, DAY_SAT);
   return g;
 }
 
@@ -53,16 +64,16 @@ export function gradientRingSVG(pctValue, { size = 112, stroke = 10, label, subl
     <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
       <defs>
         <linearGradient id="${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="${BRAND_GRADIENT[0]}"/>
-          <stop offset="55%" stop-color="${BRAND_GRADIENT[1]}"/>
-          <stop offset="100%" stop-color="${BRAND_GRADIENT[2]}"/>
+          <stop offset="0%" stop-color="${DAY_THU}"/>
+          <stop offset="55%" stop-color="${DAY_FRI}"/>
+          <stop offset="100%" stop-color="${DAY_SAT}"/>
         </linearGradient>
       </defs>
-      <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="${stroke}"/>
+      <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="rgba(21,22,27,.08)" stroke-width="${stroke}"/>
       <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="url(#${uid})" stroke-width="${stroke}" stroke-linecap="round"
         stroke-dasharray="${circumference.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}" transform="rotate(-90 ${c} ${c})"/>
-      <text x="${c}" y="${c - 4}" text-anchor="middle" font-size="${size * 0.18}" font-weight="800" fill="#fff" font-family="ui-monospace,Consolas,monospace">${label}</text>
-      ${sublabel ? `<text x="${c}" y="${c + size * 0.13}" text-anchor="middle" font-size="${size * 0.08}" fill="#9c9bb8">${sublabel}</text>` : ''}
+      <text x="${c}" y="${c - 4}" text-anchor="middle" font-size="${size * 0.18}" font-weight="800" fill="#15161B" font-family="-apple-system,'Segoe UI',sans-serif">${label}</text>
+      ${sublabel ? `<text x="${c}" y="${c + size * 0.13}" text-anchor="middle" font-size="${size * 0.08}" fill="#9296A0">${sublabel}</text>` : ''}
     </svg>`;
 }
 
@@ -78,9 +89,9 @@ export function sizeCanvasForScroll(canvas, itemCount, perItem, minWidth, height
   return width;
 }
 
-const AXIS_FONT = { size: 10, family: 'ui-monospace, Consolas, monospace' };
-const MUTE = '#8886a8';
-const GRID = 'rgba(255,255,255,.07)';
+const AXIS_FONT = { size: 10, family: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" };
+const MUTE = '#9296A0';
+const GRID = 'rgba(21,22,27,.08)';
 
 export function destroyIfAny(chart) {
   if (chart) chart.destroy();
@@ -97,8 +108,8 @@ export function createRevenueByWeekChart(canvas, weeks, prevChart) {
     data: {
       labels: weeks.map((w) => w.label),
       datasets: [
-        { label: 'Door', data: weeks.map((w) => w.doorRevenue), backgroundColor: BRAND_GRADIENT[0], stack: 's', borderRadius: 3, maxBarThickness: 22 },
-        { label: 'Bar', data: weeks.map((w) => w.barraRevenue), backgroundColor: BRAND_GRADIENT[2], stack: 's', borderRadius: 3, maxBarThickness: 22 },
+        { label: 'Door', data: weeks.map((w) => w.doorRevenue), backgroundColor: COLOR_PAID, stack: 's', borderRadius: 3, maxBarThickness: 22 },
+        { label: 'Bar', data: weeks.map((w) => w.barraRevenue), backgroundColor: COLOR_BAR, stack: 's', borderRadius: 3, maxBarThickness: 22 },
       ],
     },
     options: {
@@ -126,7 +137,7 @@ export function createWeekendChart(canvas, weekends, onBarClick, prevChart) {
   destroyIfAny(prevChart);
   sizeCanvasForScroll(canvas, weekends.length, 70, canvas.parentElement.clientWidth || 600, 200);
   const ctx = canvas.getContext('2d');
-  const dayKeys = [['Thu', 'thu', BRAND_GRADIENT[0]], ['Fri', 'fri', BRAND_GRADIENT[1]], ['Sat', 'sat', BRAND_GRADIENT[2]]];
+  const dayKeys = [['Thu', 'thu', DAY_THU], ['Fri', 'fri', DAY_FRI], ['Sat', 'sat', DAY_SAT]];
   const chart = new Chart(ctx, {
     type: 'bar',
     data: {

@@ -1,6 +1,6 @@
 import { overviewMes, weekendPerformance, nochesUltimaSemana, producerDeals, cashIntegrity } from '../data.js';
 import { money, money2, shortDate, monthYearNow } from '../format.js';
-import { createWeekendChart, BRAND_GRADIENT, COLOR_FREE, COLOR_PAID, COLOR_RA } from '../charts.js';
+import { createWeekendChart, DAY_THU, DAY_FRI, DAY_SAT, COLOR_FREE, COLOR_PAID, COLOR_RA, COLOR_BAR } from '../charts.js';
 
 let wkChart = null;
 let dealSort = 'value'; // 'value' (por barra/persona) | 'pay' (por lo que pagás)
@@ -75,9 +75,9 @@ export function render(turnos) {
           <div class="card-d">Revenue per night (door + bar) — tap a bar to see that night</div>
         </div>
         <div class="legend">
-          <span class="leg-item"><span class="sw" style="background:${BRAND_GRADIENT[0]}"></span>Thu</span>
-          <span class="leg-item"><span class="sw" style="background:${BRAND_GRADIENT[1]}"></span>Fri</span>
-          <span class="leg-item"><span class="sw" style="background:${BRAND_GRADIENT[2]}"></span>Sat</span>
+          <span class="leg-item"><span class="sw" style="background:${DAY_THU}"></span>Thu</span>
+          <span class="leg-item"><span class="sw" style="background:${DAY_FRI}"></span>Fri</span>
+          <span class="leg-item"><span class="sw" style="background:${DAY_SAT}"></span>Sat</span>
         </div>
       </div>
       ${weekends.length === 0 ? '<div class="pending" style="padding:14px 2px">No closed weekends yet.</div>' : `
@@ -111,14 +111,14 @@ export function render(turnos) {
       <div class="card-t">Revenue mix</div>
       <div class="card-d">Where the money comes from — door (cash + RA online) vs bar · ${monthYearNow()}</div>
       <div class="mixbar">
-        <span style="width:${mp(m.doorCash)}%;background:${BRAND_GRADIENT[2]}"></span>
-        <span style="width:${mp(m.raOnline)}%;background:${BRAND_GRADIENT[1]}"></span>
-        <span style="width:${mp(m.bar)}%;background:${BRAND_GRADIENT[0]}"></span>
+        <span style="width:${mp(m.doorCash)}%;background:${COLOR_PAID}"></span>
+        <span style="width:${mp(m.raOnline)}%;background:${COLOR_RA}"></span>
+        <span style="width:${mp(m.bar)}%;background:${COLOR_BAR}"></span>
       </div>
       <div class="legend">
-        <span class="leg-item"><span class="sw" style="background:${BRAND_GRADIENT[2]}"></span>Door cash ${money(m.doorCash)} · ${mp(m.doorCash)}%</span>
-        <span class="leg-item"><span class="sw" style="background:${BRAND_GRADIENT[1]}"></span>RA online ${money(m.raOnline)} · ${mp(m.raOnline)}%</span>
-        <span class="leg-item"><span class="sw" style="background:${BRAND_GRADIENT[0]}"></span>Bar ${money(m.bar)} · ${mp(m.bar)}%</span>
+        <span class="leg-item"><span class="sw" style="background:${COLOR_PAID}"></span>Door cash ${money(m.doorCash)} · ${mp(m.doorCash)}%</span>
+        <span class="leg-item"><span class="sw" style="background:${COLOR_RA}"></span>RA online ${money(m.raOnline)} · ${mp(m.raOnline)}%</span>
+        <span class="leg-item"><span class="sw" style="background:${COLOR_BAR}"></span>Bar ${money(m.bar)} · ${mp(m.bar)}%</span>
       </div>
     </div>
 
@@ -188,7 +188,7 @@ export function wire(root, turnos) {
   const canvas = root.querySelector('#gen-wk-canvas');
   const readout = root.querySelector('#gen-wk-readout');
   if (canvas && weekends.length) {
-    const dayColor = { Thu: BRAND_GRADIENT[0], Fri: BRAND_GRADIENT[1], Sat: BRAND_GRADIENT[2] };
+    const dayColor = { Thu: DAY_THU, Fri: DAY_FRI, Sat: DAY_SAT };
     const showBar = (day, wk, val) => {
       readout.innerHTML = `<span class="rw" style="background:${dayColor[day]}"></span><span><b>${day}, ${wk.label}</b> · €${Math.round(val).toLocaleString('en-US')} · door + bar that night</span>`;
     };
