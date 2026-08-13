@@ -248,7 +248,7 @@ function renderAbrirTurno() {
           <select name="id_productora" required></select>
         </label>
         <label>Fecha
-          <input name="fecha" type="date" required value="${fechaLocalHoy()}" />
+          <input name="fecha" type="date" required min="${fechaLocalHoy()}" value="${fechaLocalHoy()}" />
         </label>
         <label>Valor del ticket (€)
           <input name="valor_ticket" type="number" min="0" step="0.5" required value="5" />
@@ -275,6 +275,12 @@ function renderAbrirTurno() {
   document.getElementById('f-abrir').addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
+    // El min del input ya lo bloquea en la mayoría de los navegadores, pero
+    // algunos pickers móviles dejan tipear cualquier fecha a mano — se revalida acá.
+    if (f.get('fecha') < fechaLocalHoy()) {
+      alert('No se puede cargar una noche con fecha anterior a hoy.');
+      return;
+    }
     let turno;
     try {
       turno = await crearTurnoAlVuelo({
@@ -377,7 +383,7 @@ function pintarBadgeSync() {
 
 function chipFecha() {
   if (editandoCampo === 'fecha') {
-    return `<input type="date" id="edit-fecha" class="b-chip-edit" value="${estado.turno.fecha}" />`;
+    return `<input type="date" id="edit-fecha" class="b-chip-edit" min="${fechaLocalHoy()}" value="${estado.turno.fecha}" />`;
   }
   return `<span class="b-chip" data-action="editar-fecha">📅 ${fechaDMY(estado.turno.fecha)} ✎</span>`;
 }
@@ -536,6 +542,11 @@ function cablearConteo() {
     editandoCampo = 'fecha';
     render();
     document.getElementById('edit-fecha')?.addEventListener('change', async (e) => {
+      if (e.target.value < fechaLocalHoy()) {
+        alert('No se puede poner una fecha anterior a hoy.');
+        e.target.value = estado.turno.fecha;
+        return;
+      }
       await editarTurno({ fecha: e.target.value });
       editandoCampo = null;
       render();

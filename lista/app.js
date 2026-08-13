@@ -43,8 +43,8 @@ function renderForm() {
     .join('');
 
   app.innerHTML = `
-    <div style="padding:16px 20px 0">${BACK_LINK}</div>
     <div class="form-wrap">
+      ${BACK_LINK}
       <div class="hdr"><div class="hdr-t">Cargar lista de invitados</div></div>
       <form id="f-lista">
         <label>Noche

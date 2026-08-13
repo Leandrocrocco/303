@@ -31,7 +31,10 @@ body{background:#12101a;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe
 /* Tarjetas de "Elegí la noche" — compactas, franja de fecha a la izquierda
    (13 ago 2026: antes era un cartel grande con el nombre en rosa fuerte). */
 .noches{display:flex;flex-direction:column;gap:9px}
-.noche{display:flex;align-items:center;gap:13px;background:#1a1826;border:1px solid #2a2838;border-radius:14px;padding:12px 14px;text-align:left;cursor:pointer;width:100%;font-family:inherit}
+/* Especificidad: ".abrir button" (clase+elemento) le gana a ".noche" (una sola
+   clase) y las tarjetas terminaban heredando el rojo enorme del CTA. Se
+   escala a ".noches .noche" (dos clases) para blindarlas de esa regla. */
+.noches .noche{display:flex;align-items:center;gap:13px;background:#1a1826;border:1px solid #2a2838;border-radius:14px;padding:12px 14px;text-align:left;cursor:pointer;width:100%;font-family:inherit}
 .noche-fecha{width:38px;text-align:center;flex-shrink:0}
 .noche-dia{font-size:9px;text-transform:uppercase;letter-spacing:0.04em;color:#e5789c;font-weight:700}
 .noche-num{font-size:17px;font-weight:800;color:#fff;line-height:1.1}
@@ -39,7 +42,10 @@ body{background:#12101a;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe
 .noche-prod{font-size:14.5px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .noche-cliente{font-size:11.5px;color:#8a80a0;margin-top:2px}
 .noche-flecha{color:#5a5468;font-size:16px;flex-shrink:0}
-.link-crear{background:none !important;border:none !important;color:#8a80a0 !important;font-weight:600 !important;font-size:12px !important;padding:8px !important;text-decoration:underline;cursor:pointer}
+/* Vive dentro de contenedores flex-column (.abrir / form), que por defecto
+   estiran los hijos a lo ancho (align-items:stretch) — sin esto quedaba como
+   una barra entera en vez de un link de "volver" compacto, en móvil y en PC. */
+.link-crear{background:none !important;border:none !important;color:#8a80a0 !important;font-weight:600 !important;font-size:12px !important;padding:8px !important;text-decoration:underline;cursor:pointer;align-self:center;width:auto}
 
 /* ============ BOTONERA (adaptado de los mockups de diseño) ============ */
 .m2{width:100%;max-width:420px;margin:0 auto;background:#12101a;padding:16px;position:relative;overflow:hidden;flex:1}
