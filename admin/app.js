@@ -110,14 +110,16 @@ function render() {
 
   app.innerHTML = `
     <header class="top">
-      <div style="display:flex;align-items:center;gap:12px">
-        <a href="../" style="display:inline-flex;align-items:center;gap:5px;color:#c0b8d0;text-decoration:none;background:#16161f;border:1px solid #26262f;border-radius:9px;padding:7px 11px;font-size:12px">← Menú</a>
-        <div class="brand">303 · <span>Admin</span></div>
-      </div>
-      <div class="top-right">
-        <span style="font-size:10px;color:#6a6478;font-family:ui-monospace,Consolas,monospace">${APP_VERSION}</span>
-        <select id="sel-cliente" class="sel-cliente">${opcionesClientes}</select>
-        <button id="btn-logout" class="btn-logout">Salir</button>
+      <div class="top-inner">
+        <div style="display:flex;align-items:center;gap:12px">
+          <a href="../" style="display:inline-flex;align-items:center;gap:5px;color:#c0b8d0;text-decoration:none;background:#16161f;border:1px solid #26262f;border-radius:9px;padding:7px 11px;font-size:12px">← Menú</a>
+          <div class="brand">303 · <span>Admin</span></div>
+        </div>
+        <div class="top-right">
+          <span style="font-size:10px;color:#6a6478;font-family:ui-monospace,Consolas,monospace">${APP_VERSION}</span>
+          <select id="sel-cliente" class="sel-cliente">${opcionesClientes}</select>
+          <button id="btn-logout" class="btn-logout">Salir</button>
+        </div>
       </div>
     </header>
     <main class="wrap">
@@ -362,9 +364,9 @@ function seccionTurnos() {
       <summary><h2>Turnos</h2><span class="count">${historicos.length}</span><span class="chev">▶</span></summary>
       <div class="card-body">
         <p class="hint">Personas desglosadas en free / cash / RA. Ticket medio = (caja + RA) ÷ personas. Barra es carga manual (placeholder hasta tener un import real de Revolut) — el dashboard ya la usa para Bar y "net to venue".</p>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
-          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#8a8a98">Mes <select id="turno-filtro-mes" class="sel-cliente">${opcMeses}</select></label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#8a8a98">Productora <select id="turno-filtro-prod" class="sel-cliente">${opcProds}</select></label>
+        <div class="filtros-turno">
+          <label class="agenda-lbl">Mes<select id="turno-filtro-mes">${opcMeses}</select></label>
+          <label class="agenda-lbl">Productora<select id="turno-filtro-prod">${opcProds}</select></label>
         </div>
         <div id="turnos-resumen" style="font-size:12px;color:#b8b4c8;margin-bottom:10px;font-weight:600">${resumenTurnos(filtrados)}</div>
         <div class="tabla-scroll">

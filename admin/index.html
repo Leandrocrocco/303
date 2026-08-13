@@ -19,8 +19,14 @@ body{background:#0c0c12;color:#e8e6f0;font-family:-apple-system,system-ui,'Segoe
 .no-admin-msg{color:#8a8a98;font-size:13px;text-align:center;max-width:290px;margin-bottom:16px;line-height:1.5}
 .login button{max-width:300px;width:100%}
 
-/* HEADER */
-.top{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #1e1e28;position:sticky;top:0;background:#0c0c12;z-index:5}
+/* HEADER
+   .top-inner comparte el mismo max-width:920px + centrado que .wrap (línea
+   más abajo) — si no, en pantallas anchas (laptop/desktop, donde se suele
+   usar el panel admin) el header queda pegado al borde real de la ventana
+   mientras las cards de abajo quedan centradas, y el "← Menú" se ve corrido
+   muy a la izquierda respecto al resto del contenido. */
+.top{display:flex;justify-content:center;padding:0 24px;border-bottom:1px solid #1e1e28;position:sticky;top:0;background:#0c0c12;z-index:5}
+.top-inner{width:100%;max-width:920px;display:flex;justify-content:space-between;align-items:center;padding:16px 0}
 .brand{font-size:17px;font-weight:700;color:#fff;letter-spacing:0.02em}
 .brand span{color:#ff3b3b}
 .top-right{display:flex;gap:10px;align-items:center}
@@ -69,9 +75,21 @@ details.card .card-body{padding:0 22px 20px}
 .ag-cancel{flex-shrink:0;width:30px;height:30px;border-radius:9px;background:transparent;border:1px solid #2a2a36;color:#8a8098;cursor:pointer;font-size:13px;line-height:1;font-family:inherit}
 .ag-cancel:hover{background:#1e1e28;color:#e28a8a}
 
-.agenda-form{display:flex;flex-direction:column;gap:12px}
+/* Grid 2 columnas: Productora | Fecha arriba, Estado | Botón abajo — antes
+   era flex-column, que por default hace stretch (cada campo ocupa el 100%
+   del ancho y todo queda apilado uno debajo del otro). En mobile colapsa a
+   una sola columna. */
+.agenda-form{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;align-items:end}
+@media(max-width:540px){.agenda-form{grid-template-columns:1fr}}
 .agenda-lbl{display:flex;flex-direction:column;gap:7px;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:#6b6b78;font-weight:700}
-.agenda-form select,.agenda-form input[type=date]{background:#16161f;border:1px solid #26262f;border-radius:10px;padding:11px 13px;color:#fff;font-size:13px;font-family:inherit;width:100%}
+.agenda-form select,.agenda-form input[type=date],.filtros-turno select{background:#16161f;border:1px solid #26262f;border-radius:10px;padding:11px 13px;color:#fff;font-size:13px;font-family:inherit;width:100%}
+/* Filtros de Turnos (Mes / Productora) — mismo patrón visual que agenda-lbl
+   (label arriba, campo abajo) y flex-basis fijo para que ambos selects
+   tengan siempre la misma posición y tamaño, sin importar el largo del
+   texto de la opción elegida (antes .sel-cliente sin ancho fijo hacía que
+   el select se agrandara/achicara según la opción seleccionada). */
+.filtros-turno{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.filtros-turno .agenda-lbl{flex:1 1 190px;min-width:160px}
 .ag-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
 .ag-chip{font-size:11.5px;padding:7px 12px;border-radius:20px;border:1px solid #26262f;background:#16161f;color:#c0b8d0;cursor:pointer;font-family:inherit}
 .ag-chip.activa{border-color:#ff4d4d;background:#2a1518;color:#fff}
