@@ -109,7 +109,8 @@ create table barra_transacciones (
   estado_pos text not null default 'Completed',
   origen text not null default 'revolut_pos',
   creado_en timestamptz not null default now(),
-  unique (id_cliente, receipt_ref)
+  linea smallint not null default 1, -- numera filas idénticas del mismo pedido (migración 015)
+  unique (id_cliente, receipt_ref, timestamp_utc, total, metodo_pago, linea)
 );
 
 -- Asocia cada usuario de Supabase Auth a un rol y a los clientes que puede operar.

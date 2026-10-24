@@ -98,7 +98,7 @@ export async function importarTransaccionesBarra(idCliente, filas) {
   const payload = filas.map((f) => ({ ...f, id_cliente: idCliente }));
   const { data, error } = await supabase
     .from('barra_transacciones')
-    .upsert(payload, { onConflict: 'id_cliente,receipt_ref', ignoreDuplicates: true })
+    .upsert(payload, { onConflict: 'id_cliente,receipt_ref,timestamp_utc,total,metodo_pago,linea', ignoreDuplicates: true })
     .select('id_transaccion, id_turno');
   if (error) throw error;
   return data ?? [];

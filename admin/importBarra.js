@@ -68,6 +68,18 @@ export function parsearCsvRevolut(texto) {
       _nocheAprox: nocheAproximada(fechaUtc),
     });
   }
+
+  // `Receipt#` es el id del PEDIDO, no de la transacción: un pedido pagado en
+  // dos tarjetas (split) trae dos filas reales con el mismo recibo. La clave
+  // única es recibo + hora + total + método + `linea`, donde `linea` numera
+  // las filas idénticas dentro del archivo (1, 2, ...) — así un reimport del
+  // mismo CSV no duplica y dos pagos iguales del mismo pedido no se pisan.
+  const vistas = new Map();
+  for (const f of filas) {
+    const clave = `${f.receipt_ref}|${f.timestamp_utc}|${f.total}|${f.metodo_pago}`;
+    f.linea = (vistas.get(clave) ?? 0) + 1;
+    vistas.set(clave, f.linea);
+  }
   return { filas, canceladas, totalFilas: data.length };
 }
 
