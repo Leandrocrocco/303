@@ -77,8 +77,10 @@ async function entrarPostLogin() {
   ]);
   clientesDisponibles = clientes;
   productorasDisponibles = productoras;
-  nochesProgramadas = programadas;
-  estado.vista = programadas.length > 0 ? 'elegir-noche' : 'abrir-turno';
+  // Se pueden agendar noches futuras (para ir cargando la lista), pero abrir
+  // solo se puede la de hoy.
+  nochesProgramadas = programadas.filter((n) => n.fecha === fechaLocalHoy());
+  estado.vista = nochesProgramadas.length > 0 ? 'elegir-noche' : 'abrir-turno';
   render();
 }
 
@@ -122,8 +124,11 @@ function renderLogin() {
   });
 }
 
+// Fecha de la NOCHE en curso (hora local, nunca UTC). Mismo corte que noche_303():
+// hasta las 06:00 sigue siendo la noche de ayer — a las 01:00 del sábado se opera
+// la noche del viernes.
 function fechaLocalHoy() {
-  const d = new Date();
+  const d = new Date(Date.now() - 6 * 3600 * 1000);
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
   return `${d.getFullYear()}-${mm}-${dd}`;
@@ -238,8 +243,8 @@ function renderAbrirTurno() {
   app.innerHTML = `
     <div class="abrir">
       ${BACK_LINK}
-      <div class="abrir-t">${sinAgenda ? 'No hay fechas cargadas' : 'Abrir turno'}</div>
-      ${sinAgenda ? '<div class="abrir-sub">Todavía no hay ninguna noche agendada por el admin. Cargá esta a mano, o pedile al admin que agende las próximas desde el panel.</div>' : ''}
+      <div class="abrir-t">${sinAgenda ? 'No hay noche agendada para hoy' : 'Abrir turno'}</div>
+      ${sinAgenda ? '<div class="abrir-sub">El admin no agendó la noche de hoy. Cargala a mano, o pedile que la agende desde el panel.</div>' : ''}
       <form id="f-abrir">
         <label>Cliente
           <select name="id_cliente" required>${opcionesClientes}</select>
@@ -248,7 +253,7 @@ function renderAbrirTurno() {
           <select name="id_productora" required></select>
         </label>
         <label>Fecha
-          <input name="fecha" type="date" required min="${fechaLocalHoy()}" value="${fechaLocalHoy()}" />
+          <input name="fecha" type="date" required min="${fechaLocalHoy()}" max="${fechaLocalHoy()}" value="${fechaLocalHoy()}" />
         </label>
         <label>Valor del ticket (€)
           <input name="valor_ticket" type="number" min="0" step="0.5" required value="5" />
@@ -277,8 +282,8 @@ function renderAbrirTurno() {
     const f = new FormData(e.target);
     // El min del input ya lo bloquea en la mayoría de los navegadores, pero
     // algunos pickers móviles dejan tipear cualquier fecha a mano — se revalida acá.
-    if (f.get('fecha') < fechaLocalHoy()) {
-      alert('No se puede cargar una noche con fecha anterior a hoy.');
+    if (f.get('fecha') !== fechaLocalHoy()) {
+      alert('Solo se puede abrir la noche de hoy.');
       return;
     }
     let turno;

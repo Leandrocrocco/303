@@ -21,6 +21,7 @@
   --font-num:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+html{touch-action:manipulation}
 body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
 button{font-family:inherit;cursor:pointer}
 :focus-visible{outline:2px solid var(--acc3);outline-offset:2px}
@@ -74,6 +75,8 @@ button{font-family:inherit;cursor:pointer}
 /* ── kpi row ─────────────────────────────────────────── */
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+/* fila de 3 tarjetas (Bar/Nights/Producers): en tablet va en 3 columnas, no 2+1 huérfana */
+@media(min-width:601px) and (max-width:900px){.kpi-row:has(>.card:nth-child(3):last-child){grid-template-columns:repeat(3,1fr)}}
 .kpi-lbl{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);font-weight:700;margin-bottom:10px;position:relative}
 .kpi-hero{font-family:var(--font-num);font-weight:800;font-size:30px;line-height:1;letter-spacing:-.01em;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;position:relative}
 .kpi-hero.plain{background:none;-webkit-text-fill-color:var(--ink)}
